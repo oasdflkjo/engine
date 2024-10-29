@@ -1,3 +1,5 @@
+![alt text](image.png)
+
 # Engine init
 
 A simple OpenGL project that sets up a window with GLFW, loads OpenGL functions with GLAD, and renders a basic spinning cube using cglm for matrix transformations. This project is designed to explore and demonstrate foundational OpenGL techniques with modern libraries.
