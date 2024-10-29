@@ -10,3 +10,10 @@ A simple OpenGL project that sets up a window with GLFW, loads OpenGL functions 
 - **GLAD**: OpenGL function loader for modern OpenGL features.
 - **cglm**: Lightweight mathematics library for matrix and vector operations.
 - **Spinning Cube**: Basic 3D cube rendered in a window with dynamic rotation.
+
+## TODO
+
+- **Add ImGui**: Integrate ImGui to create a generic menu structure with interactable panels for simulations and demos.
+- **Particle Simulation**: Implement a simple particle simulation with OpenGL, showcasing basic physics and motion.
+- **Compute Shaders**: Experiment with compute shaders to handle high-performance operations directly on the GPU.
+- **Advanced Rendering**: Add shaders for visual effects, lighting, and possibly texturing.
