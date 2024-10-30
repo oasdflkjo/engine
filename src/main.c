@@ -1,32 +1,82 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <cglm/cglm.h>
 #include <stdio.h>
+#include "camera.h"
+#include "world.h"
 
-// Vertex Shader source code
-const char* vertexShaderSource = "#version 330 core\n"
-    "layout (location = 0) in vec3 aPos;\n"
-    "layout (location = 1) in vec3 aColor;\n"
-    "out vec3 ourColor;\n"
-    "uniform mat4 model;\n"
-    "uniform mat4 view;\n"
-    "uniform mat4 projection;\n"
-    "void main() {\n"
-    "   gl_Position = projection * view * model * vec4(aPos, 1.0);\n"
-    "   ourColor = aColor;\n"
-    "}\0";
-
-// Fragment Shader source code
-const char* fragmentShaderSource = "#version 330 core\n"
-    "in vec3 ourColor;\n"
-    "out vec4 FragColor;\n"
-    "void main() {\n"
-    "   FragColor = vec4(ourColor, 1.0);\n"
-    "}\0";
-
-// Callback function for window resizing
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
+}
+
+Camera camera;
+World world;
+float lastX = 0.0f;
+float lastY = 0.0f;
+bool middleMousePressed = false;
+int windowWidth = 0;
+int windowHeight = 0;
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+    camera_process_scroll(&camera, yoffset);
+}
+
+// Add this helper function to convert screen to world coordinates
+void screen_to_world_coords(double xpos, double ypos, Camera* camera, vec2 world_pos) {
+    // Convert screen coordinates to normalized device coordinates (NDC)
+    float x = (2.0f * xpos) / windowWidth - 1.0f;
+    float y = 1.0f - (2.0f * ypos) / windowHeight;
+    
+    // Create NDC point (z = -1 for near plane)
+    vec4 ndc = {x, y, -1.0f, 1.0f};
+    
+    // Get inverse view-projection matrix
+    mat4 view, projection, view_proj, inv_view_proj;
+    camera_get_view_matrix(camera, view);
+    camera_get_projection_matrix(camera, projection);
+    glm_mat4_mul(projection, view, view_proj);
+    glm_mat4_inv(view_proj, inv_view_proj);
+    
+    // Transform to world space
+    vec4 world;
+    glm_mat4_mulv(inv_view_proj, ndc, world);
+    world[0] /= world[3];
+    world[1] /= world[3];
+    
+    // Get ray direction from camera to clicked point
+    vec3 ray_dir;
+    ray_dir[0] = world[0] - camera->position[0];
+    ray_dir[1] = world[1] - camera->position[1];
+    ray_dir[2] = world[2] - camera->position[2];
+    glm_vec3_normalize(ray_dir);
+    
+    // Find intersection with z=0 plane
+    float t = -camera->position[2] / ray_dir[2];
+    world_pos[0] = camera->position[0] + ray_dir[0] * t;
+    world_pos[1] = camera->position[1] + ray_dir[1] * t;
+}
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS) {
+        if (!middleMousePressed) {
+            middleMousePressed = true;
+            lastX = xpos;
+            lastY = ypos;
+        } else {
+            float xoffset = xpos - lastX;
+            float yoffset = ypos - lastY;
+            lastX = xpos;
+            lastY = ypos;
+            
+            camera_process_pan(&camera, xoffset, yoffset);
+        }
+    } else {
+        middleMousePressed = false;
+    }
+
+    // Convert screen coordinates to world coordinates
+    vec2 world_pos;
+    screen_to_world_coords(xpos, ypos, &camera, world_pos);
+    world_set_mouse_pos(&world, world_pos[0], world_pos[1]);
 }
 
 int main() {
@@ -36,20 +86,32 @@ int main() {
         return -1;
     }
 
-    // Configure GLFW to use OpenGL version 3.3 Core Profile
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    // Configure GLFW
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
 
-    // Create GLFW window
-    GLFWwindow* window = glfwCreateWindow(800, 600, "Spinning Cube", NULL, NULL);
+    // Create window
+    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+    windowWidth = mode->width;
+    windowHeight = mode->height;
+    
+    GLFWwindow* window = glfwCreateWindow(windowWidth, windowHeight, "Particle Simulation", NULL, NULL);
     if (!window) {
         fprintf(stderr, "Failed to create GLFW window\n");
         glfwTerminate();
         return -1;
     }
+
+    // Setup window
+    glfwSetWindowPos(window, 0, 0);
     glfwMakeContextCurrent(window);
+    glfwSwapInterval(1);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, scroll_callback);
 
     // Initialize GLAD
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
@@ -57,115 +119,46 @@ int main() {
         return -1;
     }
 
-    // Vertex data for a cube with color information
-    float vertices[] = {
-        // Positions         // Colors
-        -0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  0.0f, 0.0f, 1.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  0.5f, 0.5f, 0.5f
-    };
+    // Check OpenGL version and compute shader support
+    int majorVersion, minorVersion;
+    glGetIntegerv(GL_MAJOR_VERSION, &majorVersion);
+    glGetIntegerv(GL_MINOR_VERSION, &minorVersion);
+    printf("OpenGL Version: %d.%d\n", majorVersion, minorVersion);
 
-    // Indices for drawing cube with GL_TRIANGLES
-    unsigned int indices[] = {
-        0, 1, 3, 1, 2, 3,
-        4, 5, 7, 5, 6, 7,
-        0, 1, 4, 1, 5, 4,
-        2, 3, 6, 3, 7, 6,
-        0, 3, 4, 3, 7, 4,
-        1, 2, 5, 2, 6, 5
-    };
+    if (majorVersion < 4 || (majorVersion == 4 && minorVersion < 3)) {
+        fprintf(stderr, "OpenGL 4.3 or higher is required for compute shaders\n");
+        return -1;
+    }
 
-    // Generate buffers and arrays
-    unsigned int VBO, VAO, EBO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
-
-    glBindVertexArray(VAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-    // Vertex position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    // Vertex color attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    // Compile shaders
-    unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-    glCompileShader(vertexShader);
-
-    unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-    glCompileShader(fragmentShader);
-
-    unsigned int shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
-
-    // Cleanup shaders
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-
-    glUseProgram(shaderProgram);
-
-    // Enable depth testing
-    glEnable(GL_DEPTH_TEST);
-
-    // Projection matrix
-    mat4 projection;
-    glm_perspective(glm_rad(45.0f), 800.0f / 600.0f, 0.1f, 100.0f, projection);
+    // Initialize camera and world
+    camera_init(&camera, windowWidth, windowHeight);
+    world_init(&world);
 
     // Main loop
     while (!glfwWindowShouldClose(window)) {
-        // Clear the color and depth buffers
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        // Get delta time
+        static float lastFrame = 0.0f;
+        float currentFrame = glfwGetTime();
+        float deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
 
-        // Use shader program
-        glUseProgram(shaderProgram);
+        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+            glfwSetWindowShouldClose(window, true);
 
-        // View matrix
-        mat4 view;
-        glm_translate_make(view, (vec3){0.0f, 0.0f, -3.0f});
+        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+            camera_reset(&camera);
 
-        // Model matrix (rotation)
-        mat4 model;
-        glm_mat4_identity(model);
-        glm_rotate(model, (float)glfwGetTime(), (vec3){0.5f, 1.0f, 0.0f});
+        // Update camera zoom
+        camera_update(&camera, deltaTime);
 
-        // Pass matrices to the shader
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, (float*)model);
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, (float*)view);
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, (float*)projection);
+        world_render(&world, &camera);
 
-        // Draw the cube
-        glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-
-        // Poll events and swap buffers
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
     // Cleanup
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &EBO);
-    glDeleteProgram(shaderProgram);
-
+    world_cleanup(&world);
     glfwDestroyWindow(window);
     glfwTerminate();
 

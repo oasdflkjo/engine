@@ -5,7 +5,7 @@ project(ParticleSimulation)
 set(CMAKE_C_STANDARD 11)
 
 # Define source files
-set(SOURCE_FILES src/main.c)
+set(SOURCE_FILES src/main.c src/camera.c src/world.c)
 
 # Add GLFW as a subdirectory (assuming GLFW is in external/glfw)
 add_subdirectory(external/glfw)
@@ -23,3 +23,6 @@ target_link_libraries(main glfw glad cglm opengl32)
 
 # Set the output directory for the executable to the project root
 set_target_properties(main PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
+
+# Add after your existing include_directories() calls
+include_directories(${CMAKE_SOURCE_DIR}/include)
