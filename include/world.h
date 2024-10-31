@@ -5,7 +5,7 @@
 #include "grid.h"
 #include "camera.h"
 
-#define MAX_PARTICLES 30000000
+#define MAX_PARTICLES 40000000
 
 typedef float vec2[2];
 
@@ -24,6 +24,9 @@ typedef struct {
     // Mouse and timing
     float mousePos[2];
     float deltaTime;
+    
+    // Add to the World struct:
+    GLuint velocityMagBuffer;
 } World;
 
 void world_init(World* world);

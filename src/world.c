@@ -68,6 +68,7 @@ static void init_particle_buffers(World* world, vec2* positions, vec2* velocitie
     printf("Position buffer size: %lu bytes\n", world->numParticles * sizeof(vec2));
     glGenBuffers(1, &world->velocityBuffer);
     printf("Velocity buffer size: %lu bytes\n", world->numParticles * sizeof(vec2));
+    glGenBuffers(1, &world->velocityMagBuffer);
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, world->positionBuffer);
     glBufferData(GL_SHADER_STORAGE_BUFFER, world->numParticles * sizeof(vec2), positions, GL_DYNAMIC_DRAW);
@@ -75,11 +76,18 @@ static void init_particle_buffers(World* world, vec2* positions, vec2* velocitie
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, world->velocityBuffer);
     glBufferData(GL_SHADER_STORAGE_BUFFER, world->numParticles * sizeof(vec2), velocities, GL_DYNAMIC_DRAW);
 
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, world->velocityMagBuffer);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, world->numParticles * sizeof(float), NULL, GL_DYNAMIC_DRAW);
+
     glGenVertexArrays(1, &world->particleVAO);
     glBindVertexArray(world->particleVAO);
     glBindBuffer(GL_ARRAY_BUFFER, world->positionBuffer);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(vec2), (void*)0);
     glEnableVertexAttribArray(0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, world->velocityMagBuffer);
+    glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, sizeof(float), (void*)0);
+    glEnableVertexAttribArray(1);
 }
 
 static void init_particles(World* world) {
@@ -186,6 +194,7 @@ void world_cleanup(World* world) {
     glDeleteVertexArrays(1, &world->particleVAO);
     glDeleteBuffers(1, &world->positionBuffer);
     glDeleteBuffers(1, &world->velocityBuffer);
+    glDeleteBuffers(1, &world->velocityMagBuffer);
     glDeleteProgram(world->computeProgram);
     glDeleteProgram(world->renderProgram);
 }
@@ -201,6 +210,7 @@ void world_update_particles(World* world) {
     // Bind buffers
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, world->positionBuffer);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, world->velocityBuffer);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, world->velocityMagBuffer);
 
     // Dispatch compute shader
     int workGroupSize = 256;

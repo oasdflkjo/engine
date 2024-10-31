@@ -8,6 +8,10 @@ layout(std430, binding = 1) buffer Velocity {
     vec2 velocities[];
 };
 
+layout(std430, binding = 2) buffer VelocityMagnitude {
+    float velocityMags[];
+};
+
 uniform float delta_time;
 uniform vec2 mouse_pos;
 uniform int num_particles;
@@ -18,14 +22,13 @@ void main() {
     uint index = gl_GlobalInvocationID.x;
     if (index >= num_particles) return;
 
-    // Update positions based on velocity and delta time
     positions[index] += velocities[index] * delta_time;
 
-    // Example: Add attraction towards the mouse position
     vec2 direction = normalize(mouse_pos - positions[index]);
     velocities[index] += direction * 2.5 * delta_time;
 
-    // Apply dampening to the velocity
     float dampening = 0.9998;
     velocities[index] *= dampening;
+
+    velocityMags[index] = length(velocities[index]);
 }
