@@ -108,7 +108,7 @@ int main() {
     // Setup window
     glfwSetWindowPos(window, 0, 0);
     glfwMakeContextCurrent(window);
-    glfwSwapInterval(1);
+    glfwSwapInterval(0);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
@@ -135,7 +135,11 @@ int main() {
     world_init(&world);
 
     // Main loop
+    const double targetFrameTime = 1.0 / 160.0;  // For 160 FPS
+    
     while (!glfwWindowShouldClose(window)) {
+        double frameStart = glfwGetTime();
+        
         // Get delta time
         static float lastFrame = 0.0f;
         float currentFrame = glfwGetTime();
@@ -145,16 +149,29 @@ int main() {
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(window, true);
 
-        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-            camera_reset(&camera);
+        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+            camera_reset(&camera);  // This will now trigger smooth transition
+        }
 
-        // Update camera zoom
+        // Update camera zoom and position
         camera_update(&camera, deltaTime);
 
         world_render(&world, &camera);
 
         glfwSwapBuffers(window);
+
+        // Add frame time measurement here
+        static double lastRenderTime = 0.0;
+        double currentTime = glfwGetTime();
+        printf("Frame time: %.2f ms\n", (currentTime - lastRenderTime) * 1000.0);
+        lastRenderTime = currentTime;
+        
         glfwPollEvents();
+        
+        // Frame limiting
+        while (glfwGetTime() - frameStart < targetFrameTime) {
+            // Busy-wait or could use a sleep for better CPU usage
+        }
     }
 
     // Cleanup

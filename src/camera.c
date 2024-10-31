@@ -7,10 +7,15 @@
 #define ZOOM_SPEED 5.0f
 #define ZOOM_FACTOR 0.1f
 #define PAN_SPEED 0.005f
+#define SMOOTH_FACTOR 5.0f
 
 void camera_init(Camera* camera, int screen_width, int screen_height) {
-    // Set initial position and orientation
-    glm_vec3_copy((vec3){0.0f, 0.0f, 5.0f}, camera->position);
+    // Set initial position
+    vec3 initial_pos = {0.0f, 0.0f, 5.0f};
+    glm_vec3_copy(initial_pos, camera->position);
+    glm_vec3_copy(initial_pos, camera->target_position);
+    
+    // Set initial orientation
     glm_vec3_copy((vec3){0.0f, 0.0f, -1.0f}, camera->front);
     glm_vec3_copy((vec3){0.0f, 1.0f, 0.0f}, camera->up);
     
@@ -24,6 +29,7 @@ void camera_init(Camera* camera, int screen_width, int screen_height) {
     camera->target_zoom = ZOOM_DEFAULT;
     camera->zoom_speed = ZOOM_SPEED;
     camera->pan_speed = PAN_SPEED;
+    camera->is_transitioning = false;
 }
 
 void camera_get_view_matrix(Camera* camera, mat4 view) {
@@ -63,21 +69,31 @@ void camera_process_scroll(Camera* camera, float yoffset) {
 }
 
 void camera_update(Camera* camera, float deltaTime) {
-    float zoom_delta = (camera->target_zoom - camera->zoom) * camera->zoom_speed * deltaTime;
-    camera->zoom += zoom_delta;
+    // Always smoothly interpolate zoom
+    float zoom_diff = camera->target_zoom - camera->zoom;
+    camera->zoom += zoom_diff * SMOOTH_FACTOR * deltaTime;
+    
+    if (camera->is_transitioning) {
+        // Smoothly interpolate position
+        vec3 diff;
+        glm_vec3_sub(camera->target_position, camera->position, diff);
+        
+        // If we're close enough to target, snap to it
+        if (glm_vec3_norm(diff) < 0.001f) {
+            glm_vec3_copy(camera->target_position, camera->position);
+            camera->is_transitioning = false;
+        } else {
+            // Smoothly move towards target
+            glm_vec3_scale(diff, SMOOTH_FACTOR * deltaTime, diff);
+            glm_vec3_add(camera->position, diff, camera->position);
+        }
+    }
 }
 
 void camera_reset(Camera* camera) {
-    // Reset to initial position and orientation
-    glm_vec3_copy((vec3){0.0f, 0.0f, 5.0f}, camera->position);
-    glm_vec3_copy((vec3){0.0f, 0.0f, -1.0f}, camera->front);
-    glm_vec3_copy((vec3){0.0f, 1.0f, 0.0f}, camera->up);
-    
-    // Recalculate right vector
-    glm_vec3_cross(camera->front, camera->up, camera->right);
-    glm_vec3_normalize(camera->right);
-    
-    // Reset zoom
-    camera->zoom = ZOOM_DEFAULT;
+    // Set target position to default values
+    vec3 default_pos = {0.0f, 0.0f, 5.0f};
+    glm_vec3_copy(default_pos, camera->target_position);
     camera->target_zoom = ZOOM_DEFAULT;
+    camera->is_transitioning = true;
 }

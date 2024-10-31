@@ -65,7 +65,9 @@ static void init_particle_velocities(vec2* velocities, int numParticles) {
 
 static void init_particle_buffers(World* world, vec2* positions, vec2* velocities) {
     glGenBuffers(1, &world->positionBuffer);
+    printf("Position buffer size: %lu bytes\n", world->numParticles * sizeof(vec2));
     glGenBuffers(1, &world->velocityBuffer);
+    printf("Velocity buffer size: %lu bytes\n", world->numParticles * sizeof(vec2));
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, world->positionBuffer);
     glBufferData(GL_SHADER_STORAGE_BUFFER, world->numParticles * sizeof(vec2), positions, GL_DYNAMIC_DRAW);

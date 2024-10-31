@@ -5,6 +5,7 @@
 
 typedef struct {
     vec3 position;
+    vec3 target_position;
     vec3 front;
     vec3 up;
     vec3 right;
@@ -13,6 +14,7 @@ typedef struct {
     float target_zoom;
     float zoom_speed;
     float pan_speed;
+    bool is_transitioning;
 } Camera;
 
 // Initialize camera with screen dimensions
@@ -35,5 +37,7 @@ void camera_update(Camera* camera, float deltaTime);
 
 // Reset camera to initial position
 void camera_reset(Camera* camera);
+
+void camera_set_target_position(Camera* camera, vec3 position);
 
 #endif
