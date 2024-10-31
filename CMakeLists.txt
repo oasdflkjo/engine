@@ -5,7 +5,7 @@ project(ParticleSimulation)
 set(CMAKE_C_STANDARD 11)
 
 # Define source files
-set(SOURCE_FILES src/main.c src/camera.c src/world.c)
+set(SOURCE_FILES src/main.c src/camera.c src/world.c src/grid.c src/shader.c)
 
 # Add GLFW as a subdirectory (assuming GLFW is in external/glfw)
 add_subdirectory(external/glfw)
