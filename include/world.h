@@ -5,7 +5,7 @@
 #include "grid.h"
 #include "camera.h"
 
-#define MAX_PARTICLES 40000000
+#define MAX_PARTICLES 65000000  // 40 million particles
 
 typedef float vec2[2];
 

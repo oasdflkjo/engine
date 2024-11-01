@@ -14,8 +14,10 @@ static void init_particle_positions(vec2* positions, int numParticles) {
         rand_vals[i] = (float)rand();
     }
 
+    // Changed from 20.0f to 40.0f to double the range
+    __m128 forty = _mm_set1_ps(40.0f);
+    // Changed from 10.0f to 20.0f to maintain the offset for the new range
     __m128 twenty = _mm_set1_ps(20.0f);
-    __m128 ten = _mm_set1_ps(10.0f);
     __m128 rand_max = _mm_set1_ps((float)RAND_MAX);
     
     // Process 4 particles (8 floats) at a time
@@ -27,8 +29,9 @@ static void init_particle_positions(vec2* positions, int numParticles) {
         __m128 normalized1 = _mm_div_ps(rand_vec1, rand_max);
         __m128 normalized2 = _mm_div_ps(rand_vec2, rand_max);
         
-        __m128 positioned1 = _mm_sub_ps(_mm_mul_ps(normalized1, twenty), ten);
-        __m128 positioned2 = _mm_sub_ps(_mm_mul_ps(normalized2, twenty), ten);
+        // Now multiplying by 40 and subtracting 20 to get range [-20, 20]
+        __m128 positioned1 = _mm_sub_ps(_mm_mul_ps(normalized1, forty), twenty);
+        __m128 positioned2 = _mm_sub_ps(_mm_mul_ps(normalized2, forty), twenty);
         
         _mm_store_ps((float*)&positions[i], positioned1);
         _mm_store_ps((float*)&positions[i + 2], positioned2);
@@ -36,8 +39,9 @@ static void init_particle_positions(vec2* positions, int numParticles) {
     
     // Handle remaining particles
     for (int i = aligned_count; i < numParticles; i++) {
-        positions[i][0] = ((float)rand_vals[i * 2] / RAND_MAX) * 20.0f - 10.0f;
-        positions[i][1] = ((float)rand_vals[i * 2 + 1] / RAND_MAX) * 20.0f - 10.0f;
+        // Updated scalar calculations to match the SIMD version
+        positions[i][0] = ((float)rand_vals[i * 2] / RAND_MAX) * 40.0f - 20.0f;
+        positions[i][1] = ((float)rand_vals[i * 2 + 1] / RAND_MAX) * 40.0f - 20.0f;
     }
 
     _mm_free(rand_vals);

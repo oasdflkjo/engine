@@ -105,6 +105,11 @@ int main() {
         return -1;
     }
 
+    // thanks for subscribing <3
+    // it means a lot to me
+
+    
+
     // Setup window
     glfwSetWindowPos(window, 0, 0);
     glfwMakeContextCurrent(window);
@@ -135,7 +140,7 @@ int main() {
     world_init(&world);
 
     // Main loop
-    const double targetFrameTime = 1.0 / 160.0;  // For 160 FPS
+    const double targetFrameTime = 1.0 / 60.0;  // For 160 FPS
     
     while (!glfwWindowShouldClose(window)) {
         double frameStart = glfwGetTime();
