@@ -17,10 +17,10 @@ uniform int num_particles;
 
 layout(local_size_x = 256) in;
 
-const float G = 0.1;           // Gravitational constant (reduced for better visualization)
-const float softening = 0.5;   // Softening factor to prevent numerical instability
-const float maxForce = 10.0;   // Maximum force cap
-const float dampening = 0.999; // Velocity dampening
+const float G = 0.00001;       // Gravitational constant
+const float softening = 0.1;   // Softening to prevent numerical instability
+const float maxForce = 2.0;    // Force cap to prevent extreme accelerations
+const float dampening = 0.999; // Very slight dampening to maintain energy
 
 void main() {
     uint index = gl_GlobalInvocationID.x;
@@ -38,8 +38,9 @@ void main() {
         vec2 diff = other - pos;
         float distSq = dot(diff, diff) + softening;
         
-        // Calculate gravitational force (F = G * m1 * m2 / r^2)
-        // Assuming all particles have mass = 1 for simplicity
+        if (distSq < 0.01) continue; // Ignore extremely close particles
+        
+        // Calculate gravitational force with inverse square law
         vec2 force = normalize(diff) * G / distSq;
         
         // Limit maximum force
@@ -54,8 +55,6 @@ void main() {
     // Update velocity and position
     vel += totalForce * delta_time;
     vel *= dampening;
-    
-    // Update position
     pos += vel * delta_time;
     
     // Store updated values
