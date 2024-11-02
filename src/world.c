@@ -69,9 +69,9 @@ static void init_particle_velocities(vec2* velocities, int numParticles) {
 
 static void init_particle_buffers(World* world, vec2* positions, vec2* velocities) {
     glGenBuffers(1, &world->positionBuffer);
-    printf("Position buffer size: %lu bytes\n", world->numParticles * sizeof(vec2));
+    printf("Position buffer size: %llu bytes\n", (unsigned long long)(world->numParticles * sizeof(vec2)));
     glGenBuffers(1, &world->velocityBuffer);
-    printf("Velocity buffer size: %lu bytes\n", world->numParticles * sizeof(vec2));
+    printf("Velocity buffer size: %llu bytes\n", (unsigned long long)(world->numParticles * sizeof(vec2)));
     glGenBuffers(1, &world->velocityMagBuffer);
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, world->positionBuffer);
@@ -117,9 +117,6 @@ static void init_particles(World* world) {
 void world_init(World* world) {
     // Start with grid initialization
     grid_init(&world->grid, 10.0f, 1.0f);
-
-    world->mousePos[0] = 0.0f;
-    world->mousePos[1] = 0.0f;
     world->deltaTime = 0.0f;
 
     // Load all shader sources first and check for errors
@@ -208,7 +205,6 @@ void world_update_particles(World* world) {
     
     // Update uniforms
     glUniform1f(glGetUniformLocation(world->computeProgram, "delta_time"), world->deltaTime);
-    glUniform2fv(glGetUniformLocation(world->computeProgram, "mouse_pos"), 1, world->mousePos);
     glUniform1i(glGetUniformLocation(world->computeProgram, "num_particles"), world->numParticles);
 
     // Bind buffers
@@ -223,9 +219,4 @@ void world_update_particles(World* world) {
 
     // Make sure compute shader finishes before rendering
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-}
-
-void world_set_mouse_pos(World* world, float x, float y) {
-    world->mousePos[0] = x;
-    world->mousePos[1] = y;
 }

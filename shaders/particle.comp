@@ -13,22 +13,53 @@ layout(std430, binding = 2) buffer VelocityMagnitude {
 };
 
 uniform float delta_time;
-uniform vec2 mouse_pos;
 uniform int num_particles;
 
 layout(local_size_x = 256) in;
+
+const float G = 0.1;           // Gravitational constant (reduced for better visualization)
+const float softening = 0.5;   // Softening factor to prevent numerical instability
+const float maxForce = 10.0;   // Maximum force cap
+const float dampening = 0.999; // Velocity dampening
 
 void main() {
     uint index = gl_GlobalInvocationID.x;
     if (index >= num_particles) return;
 
-    positions[index] += velocities[index] * delta_time;
+    vec2 pos = positions[index];
+    vec2 vel = velocities[index];
+    vec2 totalForce = vec2(0.0);
 
-    vec2 direction = normalize(mouse_pos - positions[index]);
-    velocities[index] += direction * 2.5 * delta_time;
+    // Calculate gravitational forces from other particles
+    for (int i = 0; i < num_particles; i++) {
+        if (i == index) continue;
 
-    float dampening = 0.9998;
-    velocities[index] *= dampening;
+        vec2 other = positions[i];
+        vec2 diff = other - pos;
+        float distSq = dot(diff, diff) + softening;
+        
+        // Calculate gravitational force (F = G * m1 * m2 / r^2)
+        // Assuming all particles have mass = 1 for simplicity
+        vec2 force = normalize(diff) * G / distSq;
+        
+        // Limit maximum force
+        float forceMag = length(force);
+        if (forceMag > maxForce) {
+            force = normalize(force) * maxForce;
+        }
+        
+        totalForce += force;
+    }
 
-    velocityMags[index] = length(velocities[index]);
+    // Update velocity and position
+    vel += totalForce * delta_time;
+    vel *= dampening;
+    
+    // Update position
+    pos += vel * delta_time;
+    
+    // Store updated values
+    positions[index] = pos;
+    velocities[index] = vel;
+    velocityMags[index] = length(vel);
 }
