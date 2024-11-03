@@ -2,14 +2,14 @@
 
 # OpenGL Particle Simulation
 
-A high-performance particle simulation system leveraging modern OpenGL features and GPU acceleration. This project demonstrates advanced graphics programming techniques and parallel computing concepts through an interactive 3D particle system.
+A high-performance particle simulation system leveraging modern OpenGL features and GPU acceleration. This project demonstrates graphics programming techniques and parallel computing concepts through an interactive 3D particle system.
 
 ## Features
 
 ### Core Systems
 - **GPU-Accelerated Particle Physics**
   - Compute shader-based particle calculations
-  - Efficient SSBO (Shader Storage Buffer Object) management
+  - SSBO (Shader Storage Buffer Object) management
   - Real-time position and velocity updates
   
 - **SIMD Optimizations**

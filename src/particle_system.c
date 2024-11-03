@@ -5,40 +5,71 @@
 #include <xmmintrin.h>  // SSE
 #include <emmintrin.h>  // SSE2
 
-#define MAX_PARTICLES 5000000
+#define MAX_PARTICLES 65000000
+
+static inline uint32_t xorshift32(uint32_t* state) {
+    uint32_t x = *state;
+    x ^= x << 13;
+    x ^= x >> 17;
+    x ^= x << 5;
+    *state = x;
+    return x;
+}
 
 static void init_particle_positions(vec2* positions, int numParticles) {
-    // Pre-calculate random values in bulk for better performance
-    float* rand_vals = (float*)_mm_malloc(numParticles * 2 * sizeof(float), 16);
-    for (int i = 0; i < numParticles * 2; i++) {
-        rand_vals[i] = (float)rand();
-    }
-
-    __m128 forty = _mm_set1_ps(40.0f);
-    __m128 twenty = _mm_set1_ps(20.0f);
-    __m128 rand_max = _mm_set1_ps((float)RAND_MAX);
+    // Initialize multiple states for parallel random generation
+    __m128i state = _mm_set_epi32(
+        0xDEADBEEF,  // Different prime numbers/seeds
+        0xB00B1E55,  // for each lane
+        0xBADF00D5,
+        0xCAFEBABE
+    );
+    
+    // Change scale and offset to center around (0,0)
+    // Using -1.0 to 1.0 range first, then scaling to desired size
+    __m128 scale = _mm_set1_ps(2.0f / (float)UINT32_MAX);  // Scale to -1 to 1 range
+    __m128 world_scale = _mm_set1_ps(20.0f);  // Then scale to world coordinates
     
     int aligned_count = (numParticles / 4) * 4;
     for (int i = 0; i < aligned_count; i += 4) {
-        __m128 rand_vec1 = _mm_load_ps(&rand_vals[i * 2]);
-        __m128 rand_vec2 = _mm_load_ps(&rand_vals[i * 2 + 4]);
+        // Generate random numbers using XOR-shift (same as before)
+        __m128i rx = state;
+        rx = _mm_xor_si128(rx, _mm_slli_epi32(rx, 13));
+        rx = _mm_xor_si128(rx, _mm_srli_epi32(rx, 17));
+        rx = _mm_xor_si128(rx, _mm_slli_epi32(rx, 5));
+        state = rx;
         
-        __m128 normalized1 = _mm_div_ps(rand_vec1, rand_max);
-        __m128 normalized2 = _mm_div_ps(rand_vec2, rand_max);
+        __m128i ry = rx;
+        ry = _mm_xor_si128(ry, _mm_slli_epi32(ry, 13));
+        ry = _mm_xor_si128(ry, _mm_srli_epi32(ry, 17));
+        ry = _mm_xor_si128(ry, _mm_slli_epi32(ry, 5));
         
-        __m128 positioned1 = _mm_sub_ps(_mm_mul_ps(normalized1, forty), twenty);
-        __m128 positioned2 = _mm_sub_ps(_mm_mul_ps(normalized2, forty), twenty);
+        // Convert to floats and scale to -1 to 1 range
+        __m128 fx = _mm_mul_ps(_mm_cvtepi32_ps(rx), scale);
+        __m128 fy = _mm_mul_ps(_mm_cvtepi32_ps(ry), scale);
         
-        _mm_store_ps((float*)&positions[i], positioned1);
-        _mm_store_ps((float*)&positions[i + 2], positioned2);
+        // Scale to world coordinates (-20 to 20)
+        fx = _mm_mul_ps(fx, world_scale);
+        fy = _mm_mul_ps(fy, world_scale);
+        
+        // Store interleaved x,y coordinates
+        __m128 xy0 = _mm_unpacklo_ps(fx, fy);
+        __m128 xy1 = _mm_unpackhi_ps(fx, fy);
+        
+        _mm_store_ps((float*)&positions[i], xy0);
+        _mm_store_ps((float*)&positions[i + 2], xy1);
     }
     
+    // Handle remaining particles
+    uint32_t scalar_state = 0xCAFEBABE;
     for (int i = aligned_count; i < numParticles; i++) {
-        positions[i][0] = ((float)rand_vals[i * 2] / RAND_MAX) * 40.0f - 20.0f;
-        positions[i][1] = ((float)rand_vals[i * 2 + 1] / RAND_MAX) * 40.0f - 20.0f;
+        uint32_t rx = xorshift32(&scalar_state);
+        uint32_t ry = xorshift32(&scalar_state);
+        
+        // Scale to -20 to 20 range centered at origin
+        positions[i][0] = ((rx / (float)UINT32_MAX) * 2.0f - 1.0f) * 20.0f;
+        positions[i][1] = ((ry / (float)UINT32_MAX) * 2.0f - 1.0f) * 20.0f;
     }
-
-    _mm_free(rand_vals);
 }
 
 static void simd_zero_velocities(vec2* velocities, int numParticles) {
