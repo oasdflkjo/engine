@@ -1,19 +1,45 @@
 ![alt text](image.png)
 
-# Engine init
+# OpenGL Particle Simulation
 
-A simple OpenGL project that sets up a window with GLFW, loads OpenGL functions with GLAD, and renders a basic spinning cube using cglm for matrix transformations. This project is designed to explore and demonstrate foundational OpenGL techniques with modern libraries.
+A real-time particle simulation system built with OpenGL, featuring GPU-accelerated compute shaders and SIMD-optimized CPU operations. The project demonstrates modern graphics programming techniques and high-performance computing concepts.
 
 ## Features
 
-- **GLFW**: Window and input management.
-- **GLAD**: OpenGL function loader for modern OpenGL features.
-- **cglm**: Lightweight mathematics library for matrix and vector operations.
-- **Spinning Cube**: Basic 3D cube rendered in a window with dynamic rotation.
+- **GPU-Accelerated Particle System**: Utilizes compute shaders for efficient particle physics calculations
+- **SIMD Optimization**: CPU-side particle initialization using SSE/SSE2 instructions for improved performance
+- **Modern OpenGL**: Leverages modern OpenGL features including:
+  - Shader Storage Buffer Objects (SSBOs)
+  - Compute shaders
+  - Vertex Array Objects (VAO)
+- **Dynamic Grid Rendering**: Background grid system for visual reference
+- **Interactive**: Mouse-based particle interaction
+- **Camera Controls**: 3D camera system for scene navigation
 
-## TODO
+## Technical Details
 
-- **Add ImGui**: Integrate ImGui to create a generic menu structure with interactable panels for simulations and demos.
-- **Particle Simulation**: Implement a simple particle simulation with OpenGL, showcasing basic physics and motion.
-- **Compute Shaders**: Experiment with compute shaders to handle high-performance operations directly on the GPU.
-- **Advanced Rendering**: Add shaders for visual effects, lighting, and possibly texturing.
+- **Particle Management**: 
+  - Efficient particle position and velocity management using OpenGL buffer objects
+  - SIMD-optimized initialization routines
+  - Dynamic velocity magnitude calculations
+- **Shader Pipeline**:
+  - Compute shader for particle physics
+  - Vertex and fragment shaders for particle rendering
+  - Custom shader loading and compilation system
+
+## Dependencies 
+
+- **GLFW**: Window management and OpenGL context creation (submodule)
+- **cglm**: Mathematics library for matrix and vector operations (submodule)
+- **GLAD**: OpenGL function loader 
+
+## Future Improvements
+
+- [ ] Add ImGui integration for real-time parameter tuning
+- [ ] Implement additional particle effects and behaviors
+- [ ] Add more advanced rendering techniques
+- [ ] Support for particle collisions
+
+## License
+
+This project is open source and available under the MIT License.
