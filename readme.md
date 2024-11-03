@@ -2,44 +2,49 @@
 
 # OpenGL Particle Simulation
 
-A real-time particle simulation system built with OpenGL, featuring GPU-accelerated compute shaders and SIMD-optimized CPU operations. The project demonstrates modern graphics programming techniques and high-performance computing concepts.
+A high-performance particle simulation system leveraging modern OpenGL features and GPU acceleration. This project demonstrates advanced graphics programming techniques and parallel computing concepts through an interactive 3D particle system.
 
 ## Features
 
-- **GPU-Accelerated Particle System**: Utilizes compute shaders for efficient particle physics calculations
-- **SIMD Optimization**: CPU-side particle initialization using SSE/SSE2 instructions for improved performance
-- **Modern OpenGL**: Leverages modern OpenGL features including:
-  - Shader Storage Buffer Objects (SSBOs)
-  - Compute shaders
-  - Vertex Array Objects (VAO)
-- **Dynamic Grid Rendering**: Background grid system for visual reference
-- **Interactive**: Mouse-based particle interaction
-- **Camera Controls**: 3D camera system for scene navigation
+### Core Systems
+- **GPU-Accelerated Particle Physics**
+  - Compute shader-based particle calculations
+  - Efficient SSBO (Shader Storage Buffer Object) management
+  - Real-time position and velocity updates
+  
+- **SIMD Optimizations**
+  - CPU-side particle initialization using SSE/SSE2
+  - Optimized memory layout for vectorized operations
 
-## Technical Details
+- **Modern OpenGL Pipeline**
+  - Compute shaders for physics calculations
+  - Vertex/Fragment shaders for rendering
+  - VAO/VBO management for efficient rendering
+  - Custom shader compilation and management system
 
-- **Particle Management**: 
-  - Efficient particle position and velocity management using OpenGL buffer objects
-  - SIMD-optimized initialization routines
-  - Dynamic velocity magnitude calculations
-- **Shader Pipeline**:
-  - Compute shader for particle physics
-  - Vertex and fragment shaders for particle rendering
-  - Custom shader loading and compilation system
+### Visualization & Interaction
+- **Dynamic Grid System**
+  - Grid for spatial reference
+  
+- **Interactive Controls**
+  - Mouse-based particle interaction
+  - 2D camera navigation system
 
-## Dependencies 
+### Dependencies
+- **GLFW** - Window management and OpenGL context
+- **CGLM** - Optimized graphics mathematics library
+- **GLAD** - OpenGL function loader
+- **Dear ImGui** - User interface (dummy init done)
 
-- **GLFW**: Window management and OpenGL context creation (submodule)
-- **cglm**: Mathematics library for matrix and vector operations (submodule)
-- **GLAD**: OpenGL function loader 
+## Future Development
 
-## Future Improvements
-
-- [ ] Add ImGui integration for real-time parameter tuning
-- [ ] Implement additional particle effects and behaviors
-- [ ] Add more advanced rendering techniques
-- [ ] Support for particle collisions
+- [ ] ImGui integration for real-time parameter tuning
+- [ ] Additional particle behaviors and effects
+- [ ] Advanced rendering techniques (shadows, lighting)
+- [ ] Particle collision system
+- [ ] Multi-threaded CPU particle updates
+- [ ] Particle emission patterns and systems
 
 ## License
 
-This project is open source and available under the MIT License.
+This project is licensed under the MIT License - see the LICENSE file for details.
