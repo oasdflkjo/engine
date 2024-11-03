@@ -5,11 +5,13 @@
 #include "particle_system.h"
 #include "camera.h"
 #include "ui.h"
+#include "hud.h"
 
 struct World {
     Grid grid;
     ParticleSystem particles;
     UI ui;
+    HUD hud;
     GLFWwindow* window;
 };
 

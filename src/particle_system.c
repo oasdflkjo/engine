@@ -83,6 +83,7 @@ static void init_particle_buffers(ParticleSystem* ps, vec2* positions, vec2* vel
 
 void particle_system_init(ParticleSystem* ps) {
     ps->numParticles = MAX_PARTICLES;
+    ps->count = ps->numParticles;  // Set count to match actual number of particles
     ps->mousePos[0] = 0.0f;
     ps->mousePos[1] = 0.0f;
     ps->deltaTime = 0.0f;

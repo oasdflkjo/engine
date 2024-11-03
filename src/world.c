@@ -1,6 +1,7 @@
 #include "world.h"
 #include "shader.h"
 #include "ui.h"
+#include "hud.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <xmmintrin.h>  // SSE
@@ -19,15 +20,20 @@ void world_init(World* world, GLFWwindow* window) {
     // Initialize particle system
     particle_system_init(&world->particles);
     
-    // Initialize UI (now window is available)
+    // Initialize UI
     ui_init(&world->ui, world->window);
+
+    // Initialize HUD
+    hud_init(&world->hud);
 }
 
 void world_render(World* world, Camera* camera) {
     static float lastFrame = 0.0f;
     float currentFrame = glfwGetTime();
-    world->particles.deltaTime = currentFrame - lastFrame;
+    float deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
+    
+    world->particles.deltaTime = deltaTime;
 
     // Update particles
     particle_system_update(&world->particles);
@@ -47,14 +53,34 @@ void world_render(World* world, Camera* camera) {
     // Render particles
     particle_system_render(&world->particles, view, projection);
     
-    // Render UI
-    ui_render(&world->ui, world);
+    // Calculate FPS and frame time
+    static float fps = 0.0f;
+    static float frameTime = 0.0f;
+    static float fpsUpdateTimer = 0.0f;
+    
+    fpsUpdateTimer += deltaTime;
+    if (fpsUpdateTimer >= 0.1f) { // Update every 0.1 seconds
+        fps = 1.0f / deltaTime;
+        frameTime = deltaTime * 1000.0f;
+        fpsUpdateTimer = 0.0f;
+    }
+    
+    // Update HUD stats
+    hud_update_stats(&world->hud, fps, world->particles.count, frameTime, deltaTime);
+    
+    // Start ImGui frame and render UI components
+    ui_render(&world->ui, world);  // Start frame and render menu
+    if (world->ui.show_ui) {      // Only render HUD if UI is visible
+        hud_render(&world->hud);
+    }
+    ui_end_frame();
 }
 
 void world_cleanup(World* world) {
     grid_cleanup(&world->grid);
     particle_system_cleanup(&world->particles);
     ui_cleanup(&world->ui);
+    hud_cleanup(&world->hud);
 }
 
 void world_set_mouse_pos(World* world, float x, float y) {

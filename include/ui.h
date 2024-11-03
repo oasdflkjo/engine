@@ -8,6 +8,7 @@ typedef struct World World;
 
 typedef struct {
     GLFWwindow* window;
+    bool show_ui;
 } UI;
 
 #ifdef __cplusplus
@@ -16,7 +17,9 @@ extern "C" {
 
 void ui_init(UI* ui, GLFWwindow* window);
 void ui_render(UI* ui, World* world);
+void ui_end_frame(void);
 void ui_cleanup(UI* ui);
+void ui_toggle(UI* ui);
 
 #ifdef __cplusplus
 }

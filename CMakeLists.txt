@@ -7,7 +7,7 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 11)
 
 # Define source files
-set(SOURCE_FILES src/main.c src/camera.c src/world.c src/grid.c src/shader.c src/particle_system.c src/ui.cpp)
+set(SOURCE_FILES src/main.c src/camera.c src/world.c src/grid.c src/shader.c src/particle_system.c src/ui.cpp src/hud.cpp)
 
 # Add GLFW as a subdirectory (assuming GLFW is in external/glfw)
 add_subdirectory(external/glfw)

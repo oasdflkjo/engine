@@ -79,6 +79,12 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
     world_set_mouse_pos(&world, world_pos[0], world_pos[1]);
 }
 
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    if (key == GLFW_KEY_H && action == GLFW_PRESS) {
+        ui_toggle(&world.ui);
+    }
+}
+
 int main() {
     // Initialize GLFW
     if (!glfwInit()) {
@@ -139,6 +145,9 @@ int main() {
     camera_init(&camera, windowWidth, windowHeight);
     world_init(&world, window);
 
+    // Add key callback
+    glfwSetKeyCallback(window, key_callback);
+
     // Main loop
     const double targetFrameTime = 1.0 / 60.0;  // For 160 FPS
     
@@ -168,7 +177,7 @@ int main() {
         // Add frame time measurement here
         static double lastRenderTime = 0.0;
         double currentTime = glfwGetTime();
-        printf("Frame time: %.2f ms\n", (currentTime - lastRenderTime) * 1000.0);
+        //printf("Frame time: %.2f ms\n", (currentTime - lastRenderTime) * 1000.0);
         lastRenderTime = currentTime;
         
         glfwPollEvents();
