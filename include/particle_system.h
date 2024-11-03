@@ -30,6 +30,13 @@ typedef struct {
     unsigned int VBO;
     unsigned int shaderProgram;
     unsigned int computeShader;
+    
+    // Uniform locations
+    GLint deltaTimeLocation;
+    GLint mousePosLocation;
+    GLint numParticlesLocation;
+    GLint particleOffsetLocation;
+    GLint batchSizeLocation;
 } ParticleSystem;
 
 void particle_system_init(ParticleSystem* ps);

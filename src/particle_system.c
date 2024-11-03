@@ -5,7 +5,7 @@
 #include <xmmintrin.h>  // SSE
 #include <emmintrin.h>  // SSE2
 
-#define MAX_PARTICLES 65000000
+#define MAX_PARTICLES 15000000
 
 static inline uint32_t xorshift32(uint32_t* state) {
     uint32_t x = *state;
@@ -91,6 +91,7 @@ static void init_particle_buffers(ParticleSystem* ps, vec2* positions, vec2* vel
     glGenBuffers(1, &ps->velocityBuffer);
     glGenBuffers(1, &ps->velocityMagBuffer);
 
+    // Remove glBufferStorage and use simpler setup
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, ps->positionBuffer);
     glBufferData(GL_SHADER_STORAGE_BUFFER, ps->numParticles * sizeof(vec2), positions, GL_DYNAMIC_DRAW);
 
@@ -100,6 +101,7 @@ static void init_particle_buffers(ParticleSystem* ps, vec2* positions, vec2* vel
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, ps->velocityMagBuffer);
     glBufferData(GL_SHADER_STORAGE_BUFFER, ps->numParticles * sizeof(float), NULL, GL_DYNAMIC_DRAW);
 
+    // Setup VAO
     glGenVertexArrays(1, &ps->particleVAO);
     glBindVertexArray(ps->particleVAO);
     
@@ -172,23 +174,43 @@ void particle_system_init(ParticleSystem* ps) {
 
     free(positions);
     free(velocities);
+
+    // Cache uniform locations
+    ps->deltaTimeLocation = glGetUniformLocation(ps->computeProgram, "delta_time");
+    ps->mousePosLocation = glGetUniformLocation(ps->computeProgram, "mouse_pos");
+    ps->numParticlesLocation = glGetUniformLocation(ps->computeProgram, "num_particles");
+    ps->particleOffsetLocation = glGetUniformLocation(ps->computeProgram, "particle_offset");
+    ps->batchSizeLocation = glGetUniformLocation(ps->computeProgram, "batch_size");
 }
 
 void particle_system_update(ParticleSystem* ps) {
+    const int WORK_GROUP_SIZE = 32;  // Must match shader local_size_x/y
+    const int PARTICLES_PER_GROUP = WORK_GROUP_SIZE * WORK_GROUP_SIZE;
+    
     glUseProgram(ps->computeProgram);
     
-    glUniform1f(glGetUniformLocation(ps->computeProgram, "delta_time"), ps->deltaTime);
-    glUniform2fv(glGetUniformLocation(ps->computeProgram, "mouse_pos"), 1, ps->mousePos);
-    glUniform1i(glGetUniformLocation(ps->computeProgram, "num_particles"), ps->numParticles);
-
+    // Set uniforms once
+    glUniform1f(ps->deltaTimeLocation, ps->deltaTime);
+    glUniform2fv(ps->mousePosLocation, 1, ps->mousePos);
+    glUniform1i(ps->numParticlesLocation, ps->numParticles);
+    
+    // Bind buffers
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ps->positionBuffer);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, ps->velocityBuffer);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, ps->velocityMagBuffer);
 
-    int workGroupSize = 256;
-    int numWorkGroups = (ps->numParticles + workGroupSize - 1) / workGroupSize;
-    glDispatchCompute(numWorkGroups, 1, 1);
-
+    // Calculate total number of work groups needed
+    int total_groups = (ps->numParticles + PARTICLES_PER_GROUP - 1) / PARTICLES_PER_GROUP;
+    
+    // Calculate grid dimensions
+    int groups_x = (int)ceil(sqrt((double)total_groups));
+    int groups_y = (total_groups + groups_x - 1) / groups_x;
+    
+    // Single dispatch for all particles
+    glUniform1i(ps->particleOffsetLocation, 0);
+    glUniform1i(ps->batchSizeLocation, ps->numParticles);
+    
+    glDispatchCompute(groups_x, groups_y, 1);
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 }
 

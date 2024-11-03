@@ -3,7 +3,7 @@
 
 #define ZOOM_DEFAULT 45.0f
 #define ZOOM_MIN 1.0f
-#define ZOOM_MAX 150.0f
+#define ZOOM_MAX 175.0f
 #define ZOOM_SPEED 5.0f
 #define ZOOM_FACTOR 0.1f
 #define PAN_SPEED 0.005f
