@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include "camera.h"
 #include "world.h"
+#include "hud.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);

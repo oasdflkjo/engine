@@ -13,47 +13,56 @@ layout(std430, binding = 2) buffer VelocityMagnitude {
     float velocityMags[];
 };
 
+// Time and particle count uniforms
 uniform float delta_time;
-uniform vec2 mouse_pos;
 uniform int num_particles;
 uniform int particle_offset;
 uniform int batch_size;
 
+// Mouse interaction
+uniform vec2 mouse_pos;
+uniform float mouse_force_radius;
+uniform float mouse_force_strength;
+
+// Physics parameters
+uniform float min_distance;         // Minimum distance before force is applied
+uniform float force_scale;         // Base force scaling factor
+uniform float max_force;           // Maximum force that can be applied
+uniform float terminal_velocity;   // Maximum speed
+uniform float damping;            // Velocity damping factor
+
 void main() {
-    // Correct global ID calculation using built-in variables
     uint global_id = gl_GlobalInvocationID.x + 
                     gl_GlobalInvocationID.y * (gl_NumWorkGroups.x * gl_WorkGroupSize.x);
                     
     uint particle_id = particle_offset + global_id;
-    if (particle_id >= num_particles) return;  // Check against total particle count
+    if (particle_id >= num_particles) return;
 
-    // Process particle
     vec2 pos = positions[particle_id];
     vec2 vel = velocities[particle_id];
     
-    // Update position first
+    // Update position
     pos += vel * delta_time;
     
     // Calculate force towards mouse
     vec2 to_mouse = mouse_pos - pos;
     float dist = length(to_mouse);
     
-    if (dist > 0.0001) {
-        // More aggressive attraction for particles far away
-        float force_strength = 150.0 / (dist + 1.0);  // Changed from inverse square
-        force_strength = min(force_strength, 200.0);
+    if (dist > min_distance) {
+        float force_strength = force_scale / (dist + 1.0);
+        force_strength = min(force_strength, max_force);
         
         vel += normalize(to_mouse) * force_strength * delta_time;
     }
     
     // Apply velocity limits
     float speed = length(vel);
-    if (speed > 100.0) {  // Increased terminal velocity
-        vel = normalize(vel) * 100.0;
+    if (speed > terminal_velocity) {
+        vel = normalize(vel) * terminal_velocity;
     }
     
-    // Lighter dampening to maintain more energy
-    vel *= 1.0 - (0.9 * delta_time);
+    // Apply dampening
+    vel *= 1.0 - (damping * delta_time);
     
     // Store results
     positions[particle_id] = pos;

@@ -5,7 +5,7 @@
 #include <xmmintrin.h>  // SSE
 #include <emmintrin.h>  // SSE2
 
-#define MAX_PARTICLES 15000000
+#define MAX_PARTICLES 10000000
 
 static inline uint32_t xorshift32(uint32_t* state) {
     uint32_t x = *state;
@@ -175,24 +175,61 @@ void particle_system_init(ParticleSystem* ps) {
     free(positions);
     free(velocities);
 
-    // Cache uniform locations
+    // Initialize physics parameters with default values
+    ps->minDistance = 0.0001f;
+    ps->forceScale = 150.0f;
+    ps->maxForce = 200.0f;
+    ps->terminalVelocity = 100.0f;
+    ps->damping = 0.9f;
+    ps->mouseForceRadius = 5.0f;
+    ps->mouseForceStrength = 1.0f;
+
+    // Cache all uniform locations
     ps->deltaTimeLocation = glGetUniformLocation(ps->computeProgram, "delta_time");
     ps->mousePosLocation = glGetUniformLocation(ps->computeProgram, "mouse_pos");
     ps->numParticlesLocation = glGetUniformLocation(ps->computeProgram, "num_particles");
     ps->particleOffsetLocation = glGetUniformLocation(ps->computeProgram, "particle_offset");
     ps->batchSizeLocation = glGetUniformLocation(ps->computeProgram, "batch_size");
+    
+    // Physics parameter uniforms
+    ps->minDistanceLocation = glGetUniformLocation(ps->computeProgram, "min_distance");
+    ps->forceScaleLocation = glGetUniformLocation(ps->computeProgram, "force_scale");
+    ps->maxForceLocation = glGetUniformLocation(ps->computeProgram, "max_force");
+    ps->terminalVelocityLocation = glGetUniformLocation(ps->computeProgram, "terminal_velocity");
+    ps->dampingLocation = glGetUniformLocation(ps->computeProgram, "damping");
+    ps->mouseForceRadiusLocation = glGetUniformLocation(ps->computeProgram, "mouse_force_radius");
+    ps->mouseForceStrengthLocation = glGetUniformLocation(ps->computeProgram, "mouse_force_strength");
+
+    // Debug print to verify uniform locations
+    printf("Uniform locations:\n");
+    printf("min_distance: %d\n", ps->minDistanceLocation);
+    printf("force_scale: %d\n", ps->forceScaleLocation);
+    printf("max_force: %d\n", ps->maxForceLocation);
+    printf("terminal_velocity: %d\n", ps->terminalVelocityLocation);
+    printf("damping: %d\n", ps->dampingLocation);
+    printf("mouse_force_radius: %d\n", ps->mouseForceRadiusLocation);
+    printf("mouse_force_strength: %d\n", ps->mouseForceStrengthLocation);
 }
 
 void particle_system_update(ParticleSystem* ps) {
-    const int WORK_GROUP_SIZE = 32;  // Must match shader local_size_x/y
+    const int WORK_GROUP_SIZE = 32;
     const int PARTICLES_PER_GROUP = WORK_GROUP_SIZE * WORK_GROUP_SIZE;
     
     glUseProgram(ps->computeProgram);
     
-    // Set uniforms once
+    // Set all uniforms
     glUniform1f(ps->deltaTimeLocation, ps->deltaTime);
     glUniform2fv(ps->mousePosLocation, 1, ps->mousePos);
     glUniform1i(ps->numParticlesLocation, ps->numParticles);
+    
+    // Set physics parameter uniforms
+    glUniform1f(ps->minDistanceLocation, ps->minDistance);
+    glUniform1f(ps->forceScaleLocation, ps->forceScale);
+    glUniform1f(ps->maxForceLocation, ps->maxForce);
+    glUniform1f(ps->terminalVelocityLocation, ps->terminalVelocity);
+    glUniform1f(ps->dampingLocation, ps->damping);
+    glUniform1f(ps->mouseForceRadiusLocation, ps->mouseForceRadius);
+    glUniform1f(ps->mouseForceStrengthLocation, ps->mouseForceStrength);
     
     // Bind buffers
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ps->positionBuffer);
@@ -235,4 +272,22 @@ void particle_system_cleanup(ParticleSystem* ps) {
 void particle_system_set_mouse_pos(ParticleSystem* ps, float x, float y) {
     ps->mousePos[0] = x;
     ps->mousePos[1] = y;
+}
+
+void particle_system_set_force_scale(ParticleSystem* ps, float scale) {
+    ps->forceScale = scale;
+    glUseProgram(ps->computeProgram);
+    glUniform1f(ps->forceScaleLocation, scale);
+}
+
+void particle_system_set_damping(ParticleSystem* ps, float damping) {
+    ps->damping = damping;
+    glUseProgram(ps->computeProgram);
+    glUniform1f(ps->dampingLocation, damping);
+}
+
+void particle_system_set_terminal_velocity(ParticleSystem* ps, float velocity) {
+    ps->terminalVelocity = velocity;
+    glUseProgram(ps->computeProgram);
+    glUniform1f(ps->terminalVelocityLocation, velocity);
 }

@@ -2,7 +2,6 @@
 #define GRID_H
 
 #include <glad/glad.h>
-#include <GLFW/glfw3.h>
 #include <cglm/cglm.h>
 
 typedef struct {
@@ -11,6 +10,7 @@ typedef struct {
     unsigned int shaderProgram;
     float size;
     float spacing;
+    int lineCount;
 } Grid;
 
 void grid_init(Grid* grid, float size, float spacing);

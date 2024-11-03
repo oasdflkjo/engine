@@ -19,12 +19,13 @@ void world_init(World* world, GLFWwindow* window) {
     
     // Initialize particle system
     particle_system_init(&world->particles);
-    
-    // Initialize UI
-    ui_init(&world->ui, world->window);
 
     // Initialize HUD
-    hud_init(&world->hud);
+    world->hud.window = window;
+    hud_init(&world->hud, &world->particles);
+
+    // Initialize UI
+    ui_init(&world->ui, window);
 }
 
 void world_render(World* world, Camera* camera) {
@@ -69,10 +70,13 @@ void world_render(World* world, Camera* camera) {
     hud_update_stats(&world->hud, fps, world->particles.count, frameTime, deltaTime);
     
     // Start ImGui frame and render UI components
-    ui_render(&world->ui, world);  // Start frame and render menu
-    if (world->ui.show_ui) {      // Only render HUD if UI is visible
+    ui_render(&world->ui, world);  // Always render base UI
+    
+    // Only render HUD if UI is visible
+    if (ui_is_visible(&world->ui)) {
         hud_render(&world->hud);
     }
+    
     ui_end_frame();
 }
 
