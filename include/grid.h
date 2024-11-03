@@ -2,6 +2,8 @@
 #define GRID_H
 
 #include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <cglm/cglm.h>
 
 typedef struct {
     unsigned int VAO;

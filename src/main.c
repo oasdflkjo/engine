@@ -137,7 +137,7 @@ int main() {
 
     // Initialize camera and world
     camera_init(&camera, windowWidth, windowHeight);
-    world_init(&world);
+    world_init(&world, window);
 
     // Main loop
     const double targetFrameTime = 1.0 / 60.0;  // For 160 FPS
