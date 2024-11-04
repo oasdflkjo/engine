@@ -5,7 +5,7 @@
 #include <xmmintrin.h>  // SSE
 #include <emmintrin.h>  // SSE2
 
-#define MAX_PARTICLES 10000000
+#define MAX_PARTICLES 65000000
 
 static inline uint32_t xorshift32(uint32_t* state) {
     uint32_t x = *state;
@@ -117,8 +117,8 @@ static void init_particle_buffers(ParticleSystem* ps, vec2* positions, vec2* vel
 void particle_system_init(ParticleSystem* ps) {
     ps->numParticles = MAX_PARTICLES;
     ps->count = ps->numParticles;  // Set count to match actual number of particles
-    ps->mousePos[0] = 0.0f;
-    ps->mousePos[1] = 0.0f;
+    ps->gravityPoint[0] = 0.0f;
+    ps->gravityPoint[1] = 0.0f;
     ps->deltaTime = 0.0f;
     
     // Initialize shaders
@@ -184,9 +184,9 @@ void particle_system_init(ParticleSystem* ps) {
     ps->mouseForceRadius = 5.0f;
     ps->mouseForceStrength = 1.0f;
 
-    // Cache all uniform locations
+    // Cache uniform locations
     ps->deltaTimeLocation = glGetUniformLocation(ps->computeProgram, "delta_time");
-    ps->mousePosLocation = glGetUniformLocation(ps->computeProgram, "mouse_pos");
+    ps->gravityPointLocation = glGetUniformLocation(ps->computeProgram, "gravity_point");
     ps->numParticlesLocation = glGetUniformLocation(ps->computeProgram, "num_particles");
     ps->particleOffsetLocation = glGetUniformLocation(ps->computeProgram, "particle_offset");
     ps->batchSizeLocation = glGetUniformLocation(ps->computeProgram, "batch_size");
@@ -197,18 +197,21 @@ void particle_system_init(ParticleSystem* ps) {
     ps->maxForceLocation = glGetUniformLocation(ps->computeProgram, "max_force");
     ps->terminalVelocityLocation = glGetUniformLocation(ps->computeProgram, "terminal_velocity");
     ps->dampingLocation = glGetUniformLocation(ps->computeProgram, "damping");
-    ps->mouseForceRadiusLocation = glGetUniformLocation(ps->computeProgram, "mouse_force_radius");
-    ps->mouseForceStrengthLocation = glGetUniformLocation(ps->computeProgram, "mouse_force_strength");
+    ps->mouseForceRadiusLocation = glGetUniformLocation(ps->computeProgram, "gravity_radius");
+    ps->mouseForceStrengthLocation = glGetUniformLocation(ps->computeProgram, "gravity_strength");
 
     // Debug print to verify uniform locations
     printf("Uniform locations:\n");
-    printf("min_distance: %d\n", ps->minDistanceLocation);
-    printf("force_scale: %d\n", ps->forceScaleLocation);
-    printf("max_force: %d\n", ps->maxForceLocation);
-    printf("terminal_velocity: %d\n", ps->terminalVelocityLocation);
-    printf("damping: %d\n", ps->dampingLocation);
-    printf("mouse_force_radius: %d\n", ps->mouseForceRadiusLocation);
-    printf("mouse_force_strength: %d\n", ps->mouseForceStrengthLocation);
+    printf("gravity_point: %d\n", ps->gravityPointLocation);
+    printf("gravity_radius: %d\n", ps->mouseForceRadiusLocation);
+    printf("gravity_strength: %d\n", ps->mouseForceStrengthLocation);
+
+    ps->attractionStrength = 2.5f;  // Default value
+    ps->timeScale = 1.0f;          // Default value
+
+    // Get uniform locations
+    ps->attractionStrengthLocation = glGetUniformLocation(ps->computeProgram, "attraction_strength");
+    ps->timeScaleLocation = glGetUniformLocation(ps->computeProgram, "time_scale");
 }
 
 void particle_system_update(ParticleSystem* ps) {
@@ -219,7 +222,7 @@ void particle_system_update(ParticleSystem* ps) {
     
     // Set all uniforms
     glUniform1f(ps->deltaTimeLocation, ps->deltaTime);
-    glUniform2fv(ps->mousePosLocation, 1, ps->mousePos);
+    glUniform2fv(ps->gravityPointLocation, 1, ps->gravityPoint);
     glUniform1i(ps->numParticlesLocation, ps->numParticles);
     
     // Set physics parameter uniforms
@@ -230,6 +233,10 @@ void particle_system_update(ParticleSystem* ps) {
     glUniform1f(ps->dampingLocation, ps->damping);
     glUniform1f(ps->mouseForceRadiusLocation, ps->mouseForceRadius);
     glUniform1f(ps->mouseForceStrengthLocation, ps->mouseForceStrength);
+    
+    // Set uniforms
+    glUniform1f(ps->attractionStrengthLocation, ps->attractionStrength);
+    glUniform1f(ps->timeScaleLocation, ps->timeScale);
     
     // Bind buffers
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ps->positionBuffer);
@@ -269,9 +276,9 @@ void particle_system_cleanup(ParticleSystem* ps) {
     glDeleteProgram(ps->renderProgram);
 }
 
-void particle_system_set_mouse_pos(ParticleSystem* ps, float x, float y) {
-    ps->mousePos[0] = x;
-    ps->mousePos[1] = y;
+void particle_system_set_gravity_point(ParticleSystem* ps, float x, float y) {
+    ps->gravityPoint[0] = x;
+    ps->gravityPoint[1] = y;
 }
 
 void particle_system_set_force_scale(ParticleSystem* ps, float scale) {
@@ -290,4 +297,12 @@ void particle_system_set_terminal_velocity(ParticleSystem* ps, float velocity) {
     ps->terminalVelocity = velocity;
     glUseProgram(ps->computeProgram);
     glUniform1f(ps->terminalVelocityLocation, velocity);
+}
+
+void particle_system_set_attraction_strength(ParticleSystem* ps, float strength) {
+    ps->attractionStrength = strength;
+}
+
+void particle_system_set_time_scale(ParticleSystem* ps, float scale) {
+    ps->timeScale = scale;
 }

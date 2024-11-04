@@ -3,41 +3,32 @@
 
 #include <cglm/cglm.h>
 
+// Define callback type for target position changes
+typedef void (*CameraTargetChangedCallback)(float x, float y, void* user_data);
+
 typedef struct {
     vec3 position;
-    vec3 target_position;
-    vec3 front;
+    vec3 target;
     vec3 up;
-    vec3 right;
-    float aspect_ratio;
-    float zoom;
+    int width;
+    int height;
     float target_zoom;
     float zoom_speed;
     float pan_speed;
-    bool is_transitioning;
+    float zoom_smoothness;
+    
+    // Callback for target position changes
+    CameraTargetChangedCallback on_target_changed;
+    void* user_data;
 } Camera;
 
-// Initialize camera with screen dimensions
-void camera_init(Camera* camera, int screen_width, int screen_height);
-
-// Get view matrix for the camera
-void camera_get_view_matrix(Camera* camera, mat4 view);
-
-// Get projection matrix for the camera
-void camera_get_projection_matrix(Camera* camera, mat4 projection);
-
-// Process mouse pan (middle mouse button drag)
+void camera_init(Camera* camera, int width, int height);
 void camera_process_pan(Camera* camera, float xoffset, float yoffset);
-
-// Process mouse scroll
 void camera_process_scroll(Camera* camera, float yoffset);
-
-// Update camera (for smooth zoom)
 void camera_update(Camera* camera, float deltaTime);
-
-// Reset camera to initial position
+void camera_get_view_matrix(Camera* camera, mat4 view);
+void camera_get_projection_matrix(Camera* camera, mat4 projection);
 void camera_reset(Camera* camera);
+void camera_set_target_callback(Camera* camera, CameraTargetChangedCallback callback, void* user_data);
 
-void camera_set_target_position(Camera* camera, vec3 position);
-
-#endif
+#endif // CAMERA_H

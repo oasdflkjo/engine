@@ -1,5 +1,10 @@
 #include "hud.h"
 #include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+
+static bool imgui_initialized = false;
+static bool show_hud = true;
 
 void hud_init(HUD* hud, ParticleSystem* ps) {
     hud->particleSystem = ps;
@@ -7,6 +12,38 @@ void hud_init(HUD* hud, ParticleSystem* ps) {
     hud->particleCount = 0;
     hud->frameTime = 0.0f;
     hud->deltaTime = 0.0f;
+
+    // Initialize ImGui only once
+    if (!imgui_initialized) {
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+        ImGuiIO& io = ImGui::GetIO();
+        
+        // Increase font size and enable antialiasing
+        io.FontGlobalScale = 1.5f;
+        io.Fonts->AddFontDefault();
+        io.FontAllowUserScaling = true;
+        
+        // Enable antialiasing on fonts
+        io.Fonts->Build();
+        io.Fonts->TexDesiredWidth = 512;
+        io.Fonts->Flags |= ImFontAtlasFlags_NoBakedLines;
+        
+        // Setup Platform/Renderer bindings
+        ImGui_ImplGlfw_InitForOpenGL(hud->window, true);
+        ImGui_ImplOpenGL3_Init("#version 430");
+        
+        // Setup Dear ImGui style with antialiasing
+        ImGui::StyleColorsDark();
+        ImGuiStyle& style = ImGui::GetStyle();
+        style.WindowBorderSize = 1.0f;
+        style.WindowTitleAlign = ImVec2(0.5f, 0.5f);
+        style.AntiAliasedLines = true;
+        style.AntiAliasedFill = true;
+        style.AntiAliasedLinesUseTex = true;
+        
+        imgui_initialized = true;
+    }
 }
 
 void hud_update_stats(HUD* hud, float fps, int particleCount, float frameTime, float deltaTime) {
@@ -17,6 +54,31 @@ void hud_update_stats(HUD* hud, float fps, int particleCount, float frameTime, f
 }
 
 void hud_render(HUD* hud) {
+    if (!show_hud) return;
+
+    // Start the Dear ImGui frame
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+
+    // Main menu bar
+    if (ImGui::BeginMainMenuBar()) {
+        if (ImGui::BeginMenu("File")) {
+            if (ImGui::MenuItem("Exit", "Esc")) {
+                glfwSetWindowShouldClose(hud->window, true);
+            }
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("View")) {
+            if (ImGui::MenuItem("Toggle HUD", "H")) {
+                hud_toggle(hud);
+            }
+            ImGui::EndMenu();
+        }
+        ImGui::EndMainMenuBar();
+    }
+
+    // Controls window
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_None;
     
     ImGui::Begin("Particle System Controls", nullptr, window_flags);
@@ -28,71 +90,34 @@ void hud_render(HUD* hud) {
     
     ImGui::Separator();
     
-    // Force parameters
-    ImGui::Text("Force Parameters");
-    float forceScale = hud->particleSystem->forceScale;
-    if (ImGui::SliderFloat("Force Scale", &forceScale, 0.0f, 500.0f)) {
-        particle_system_set_force_scale(hud->particleSystem, forceScale);
+    // Simulation Controls
+    ImGui::Text("Simulation Controls");
+    
+    float timeScale = hud->particleSystem->timeScale;
+    if (ImGui::SliderFloat("Time Scale", &timeScale, 0.1f, 2.0f)) {
+        particle_system_set_time_scale(hud->particleSystem, timeScale);
     }
     
-    float maxForce = hud->particleSystem->maxForce;
-    if (ImGui::SliderFloat("Max Force", &maxForce, 0.0f, 1000.0f)) {
-        hud->particleSystem->maxForce = maxForce;
-    }
-
-    float minDistance = hud->particleSystem->minDistance;
-    if (ImGui::SliderFloat("Min Distance", &minDistance, 0.0001f, 1.0f, "%.4f")) {
-        hud->particleSystem->minDistance = minDistance;
-    }
-
-    // Velocity parameters
-    ImGui::Separator();
-    ImGui::Text("Velocity Parameters");
-    
-    float terminalVel = hud->particleSystem->terminalVelocity;
-    if (ImGui::SliderFloat("Terminal Velocity", &terminalVel, 0.0f, 200.0f)) {
-        particle_system_set_terminal_velocity(hud->particleSystem, terminalVel);
-    }
-
-    float damping = hud->particleSystem->damping;
-    if (ImGui::SliderFloat("Damping", &damping, 0.0f, 1.0f)) {
-        particle_system_set_damping(hud->particleSystem, damping);
-    }
-
-    // Mouse interaction parameters
-    ImGui::Separator();
-    ImGui::Text("Mouse Interaction");
-    
-    float mouseRadius = hud->particleSystem->mouseForceRadius;
-    if (ImGui::SliderFloat("Mouse Force Radius", &mouseRadius, 0.0f, 20.0f)) {
-        hud->particleSystem->mouseForceRadius = mouseRadius;
-    }
-
-    float mouseStrength = hud->particleSystem->mouseForceStrength;
-    if (ImGui::SliderFloat("Mouse Force Strength", &mouseStrength, 0.0f, 5.0f)) {
-        hud->particleSystem->mouseForceStrength = mouseStrength;
-    }
-
-    // Add presets
-    ImGui::Separator();
-    ImGui::Text("Presets");
-    if (ImGui::Button("Gentle Attraction")) {
-        hud->particleSystem->forceScale = 100.0f;
-        hud->particleSystem->maxForce = 150.0f;
-        hud->particleSystem->damping = 0.8f;
-        hud->particleSystem->terminalVelocity = 50.0f;
-    }
-    ImGui::SameLine();
-    if (ImGui::Button("Chaos")) {
-        hud->particleSystem->forceScale = 400.0f;
-        hud->particleSystem->maxForce = 800.0f;
-        hud->particleSystem->damping = 0.2f;
-        hud->particleSystem->terminalVelocity = 200.0f;
+    float attractionStrength = hud->particleSystem->attractionStrength;
+    if (ImGui::SliderFloat("Attraction Strength", &attractionStrength, 0.1f, 10.0f)) {
+        particle_system_set_attraction_strength(hud->particleSystem, attractionStrength);
     }
 
     ImGui::End();
+
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 void hud_cleanup(HUD* hud) {
-    // Nothing to clean up
+    if (imgui_initialized) {
+        ImGui_ImplOpenGL3_Shutdown();
+        ImGui_ImplGlfw_Shutdown();
+        ImGui::DestroyContext();
+        imgui_initialized = false;
+    }
+}
+
+void hud_toggle(HUD* hud) {
+    show_hud = !show_hud;
 }

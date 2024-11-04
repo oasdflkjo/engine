@@ -16,7 +16,7 @@ typedef struct {
     int numParticles;
     int count;
     float deltaTime;
-    vec2 mousePos;
+    vec2 gravityPoint;
 
     // OpenGL objects
     GLuint positionBuffer;
@@ -37,7 +37,7 @@ typedef struct {
 
     // Uniform locations
     GLint deltaTimeLocation;
-    GLint mousePosLocation;
+    GLint gravityPointLocation;
     GLint numParticlesLocation;
     GLint particleOffsetLocation;
     GLint batchSizeLocation;
@@ -48,18 +48,28 @@ typedef struct {
     GLint dampingLocation;
     GLint mouseForceRadiusLocation;
     GLint mouseForceStrengthLocation;
+
+    // Additional parameters
+    float attractionStrength;
+    float timeScale;
+
+    // Add uniform locations
+    GLint attractionStrengthLocation;
+    GLint timeScaleLocation;
 } ParticleSystem;
 
 void particle_system_init(ParticleSystem* ps);
 void particle_system_update(ParticleSystem* ps);
 void particle_system_render(ParticleSystem* ps, mat4 view, mat4 projection);
 void particle_system_cleanup(ParticleSystem* ps);
-void particle_system_set_mouse_pos(ParticleSystem* ps, float x, float y);
+void particle_system_set_gravity_point(ParticleSystem* ps, float x, float y);
 
 // Parameter setter functions
 void particle_system_set_force_scale(ParticleSystem* ps, float scale);
 void particle_system_set_damping(ParticleSystem* ps, float damping);
 void particle_system_set_terminal_velocity(ParticleSystem* ps, float velocity);
+void particle_system_set_attraction_strength(ParticleSystem* ps, float strength);
+void particle_system_set_time_scale(ParticleSystem* ps, float scale);
 
 #ifdef __cplusplus
 }

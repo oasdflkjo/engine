@@ -18,42 +18,7 @@ int windowWidth = 0;
 int windowHeight = 0;
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
-    camera_process_scroll(&camera, yoffset);
-}
-
-// Add this helper function to convert screen to world coordinates
-void screen_to_world_coords(double xpos, double ypos, Camera* camera, vec2 world_pos) {
-    // Convert screen coordinates to normalized device coordinates (NDC)
-    float x = (2.0f * xpos) / windowWidth - 1.0f;
-    float y = 1.0f - (2.0f * ypos) / windowHeight;
-    
-    // Create NDC point (z = -1 for near plane)
-    vec4 ndc = {x, y, -1.0f, 1.0f};
-    
-    // Get inverse view-projection matrix
-    mat4 view, projection, view_proj, inv_view_proj;
-    camera_get_view_matrix(camera, view);
-    camera_get_projection_matrix(camera, projection);
-    glm_mat4_mul(projection, view, view_proj);
-    glm_mat4_inv(view_proj, inv_view_proj);
-    
-    // Transform to world space
-    vec4 world;
-    glm_mat4_mulv(inv_view_proj, ndc, world);
-    world[0] /= world[3];
-    world[1] /= world[3];
-    
-    // Get ray direction from camera to clicked point
-    vec3 ray_dir;
-    ray_dir[0] = world[0] - camera->position[0];
-    ray_dir[1] = world[1] - camera->position[1];
-    ray_dir[2] = world[2] - camera->position[2];
-    glm_vec3_normalize(ray_dir);
-    
-    // Find intersection with z=0 plane
-    float t = -camera->position[2] / ray_dir[2];
-    world_pos[0] = camera->position[0] + ray_dir[0] * t;
-    world_pos[1] = camera->position[1] + ray_dir[1] * t;
+    camera_process_scroll(&world.camera, yoffset);
 }
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
@@ -68,16 +33,11 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
             lastX = xpos;
             lastY = ypos;
             
-            camera_process_pan(&camera, xoffset, yoffset);
+            camera_process_pan(&world.camera, xoffset, yoffset);
         }
     } else {
         middleMousePressed = false;
     }
-
-    // Convert screen coordinates to world coordinates
-    vec2 world_pos;
-    screen_to_world_coords(xpos, ypos, &camera, world_pos);
-    world_set_mouse_pos(&world, world_pos[0], world_pos[1]);
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -86,13 +46,13 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
     switch (key) {
         case GLFW_KEY_H:
-            ui_toggle(&world.ui);
+            hud_toggle(&world.hud);
             break;
         case GLFW_KEY_ESCAPE:
             glfwSetWindowShouldClose(window, true);
             break;
         case GLFW_KEY_SPACE:
-            camera_reset(&camera);
+            camera_reset(&world.camera);
             break;
     }
 }
@@ -144,7 +104,7 @@ int main() {
     printf("OpenGL Version: %d.%d\n", majorVersion, minorVersion);
 
     // Initialize camera and world
-    camera_init(&camera, windowWidth, windowHeight);
+    camera_init(&world.camera, windowWidth, windowHeight);
     world_init(&world, window);
 
     // Add key callback
@@ -161,9 +121,9 @@ int main() {
         lastFrame = currentFrame;
 
         // Update camera zoom and position
-        camera_update(&camera, deltaTime);
+        camera_update(&world.camera, deltaTime);
 
-        world_render(&world, &camera);
+        world_render(&world, &world.camera);
 
         glfwSwapBuffers(window);
         

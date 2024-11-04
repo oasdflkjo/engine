@@ -4,9 +4,8 @@
 #include <glad/glad.h>
 #include "grid.h"
 #include "particle_system.h"
-#include "ui.h"
-#include "hud.h"
 #include "camera.h"
+#include "hud.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -16,14 +15,14 @@ typedef struct World {
     GLFWwindow* window;
     Grid grid;
     ParticleSystem particles;
-    UI ui;
+    Camera camera;
     HUD hud;
 } World;
 
 void world_init(World* world, GLFWwindow* window);
 void world_render(World* world, Camera* camera);
 void world_cleanup(World* world);
-void world_set_mouse_pos(World* world, float x, float y);
+void screen_to_world_coords(double xpos, double ypos, Camera* camera, vec2 world_pos);
 
 #ifdef __cplusplus
 }

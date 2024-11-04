@@ -1,7 +1,5 @@
 #include "world.h"
 #include "shader.h"
-#include "ui.h"
-#include "hud.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <xmmintrin.h>  // SSE
@@ -10,9 +8,22 @@
 #include <GLFW/glfw3.h>
 #include "particle_system.h"
 
+// Add this function to handle camera target changes
+static void on_camera_target_changed(float x, float y, void* user_data) {
+    World* world = (World*)user_data;
+    particle_system_set_gravity_point(&world->particles, x, y);
+}
+
 void world_init(World* world, GLFWwindow* window) {
     // Store window
     world->window = window;
+    
+    // Get window size
+    int width, height;
+    glfwGetWindowSize(window, &width, &height);
+    
+    // Initialize camera
+    camera_init(&world->camera, width, height);
     
     // Initialize grid
     grid_init(&world->grid, 10.0f, 1.0f);
@@ -20,12 +31,17 @@ void world_init(World* world, GLFWwindow* window) {
     // Initialize particle system
     particle_system_init(&world->particles);
 
-    // Initialize HUD
-    world->hud.window = window;
+    // Initialize HUD with window handle
+    world->hud.window = window;  // Set window handle before init
     hud_init(&world->hud, &world->particles);
 
-    // Initialize UI
-    ui_init(&world->ui, window);
+    // Set up camera callback AFTER particle system is initialized
+    camera_set_target_callback(&world->camera, on_camera_target_changed, world);
+    
+    // Force an initial target update
+    on_camera_target_changed(world->camera.target[0], 
+                           world->camera.target[1], 
+                           world);
 }
 
 void world_render(World* world, Camera* camera) {
@@ -42,11 +58,11 @@ void world_render(World* world, Camera* camera) {
     // Clear buffers
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // Get matrices from camera
+    // Get matrices from world's camera
     mat4 view;
     mat4 projection;
-    camera_get_view_matrix(camera, view);
-    camera_get_projection_matrix(camera, projection);
+    camera_get_view_matrix(&world->camera, view);
+    camera_get_projection_matrix(&world->camera, projection);
     
     // Render grid
     grid_render(&world->grid, (float*)view, (float*)projection);
@@ -60,7 +76,7 @@ void world_render(World* world, Camera* camera) {
     static float fpsUpdateTimer = 0.0f;
     
     fpsUpdateTimer += deltaTime;
-    if (fpsUpdateTimer >= 0.1f) { // Update every 0.1 seconds
+    if (fpsUpdateTimer >= 0.1f) {
         fps = 1.0f / deltaTime;
         frameTime = deltaTime * 1000.0f;
         fpsUpdateTimer = 0.0f;
@@ -69,24 +85,46 @@ void world_render(World* world, Camera* camera) {
     // Update HUD stats
     hud_update_stats(&world->hud, fps, world->particles.count, frameTime, deltaTime);
     
-    // Start ImGui frame and render UI components
-    ui_render(&world->ui, world);  // Always render base UI
-    
-    // Only render HUD if UI is visible
-    if (ui_is_visible(&world->ui)) {
-        hud_render(&world->hud);
-    }
-    
-    ui_end_frame();
+    // Render HUD
+    hud_render(&world->hud);
 }
 
 void world_cleanup(World* world) {
     grid_cleanup(&world->grid);
     particle_system_cleanup(&world->particles);
-    ui_cleanup(&world->ui);
     hud_cleanup(&world->hud);
 }
 
-void world_set_mouse_pos(World* world, float x, float y) {
-    particle_system_set_mouse_pos(&world->particles, x, y);
+void screen_to_world_coords(double xpos, double ypos, Camera* camera, vec2 world_pos) {
+    // Convert screen coordinates to normalized device coordinates (NDC)
+    float x = (2.0f * xpos) / camera->width - 1.0f;
+    float y = 1.0f - (2.0f * ypos) / camera->height;
+    
+    // Create NDC point (z = -1 for near plane)
+    vec4 ndc = {x, y, -1.0f, 1.0f};
+    
+    // Get inverse view-projection matrix
+    mat4 view, projection, view_proj, inv_view_proj;
+    camera_get_view_matrix(camera, view);
+    camera_get_projection_matrix(camera, projection);
+    glm_mat4_mul(projection, view, view_proj);
+    glm_mat4_inv(view_proj, inv_view_proj);
+    
+    // Transform to world space
+    vec4 world;
+    glm_mat4_mulv(inv_view_proj, ndc, world);
+    world[0] /= world[3];
+    world[1] /= world[3];
+    
+    // Get ray direction from camera to clicked point
+    vec3 ray_dir;
+    ray_dir[0] = world[0] - camera->position[0];
+    ray_dir[1] = world[1] - camera->position[1];
+    ray_dir[2] = world[2] - camera->position[2];
+    glm_vec3_normalize(ray_dir);
+    
+    // Find intersection with z=0 plane
+    float t = -camera->position[2] / ray_dir[2];
+    world_pos[0] = camera->position[0] + ray_dir[0] * t;
+    world_pos[1] = camera->position[1] + ray_dir[1] * t;
 }

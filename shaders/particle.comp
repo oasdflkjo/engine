@@ -13,59 +13,28 @@ layout(std430, binding = 2) buffer VelocityMagnitude {
     float velocityMags[];
 };
 
-// Time and particle count uniforms
 uniform float delta_time;
+uniform vec2 gravity_point;
 uniform int num_particles;
-uniform int particle_offset;
-uniform int batch_size;
-
-// Mouse interaction
-uniform vec2 mouse_pos;
-uniform float mouse_force_radius;
-uniform float mouse_force_strength;
-
-// Physics parameters
-uniform float min_distance;         // Minimum distance before force is applied
-uniform float force_scale;         // Base force scaling factor
-uniform float max_force;           // Maximum force that can be applied
-uniform float terminal_velocity;   // Maximum speed
-uniform float damping;            // Velocity damping factor
+uniform float attraction_strength;
+uniform float time_scale;
 
 void main() {
     uint global_id = gl_GlobalInvocationID.x + 
                     gl_GlobalInvocationID.y * (gl_NumWorkGroups.x * gl_WorkGroupSize.x);
                     
-    uint particle_id = particle_offset + global_id;
-    if (particle_id >= num_particles) return;
+    if (global_id >= num_particles) return;
 
-    vec2 pos = positions[particle_id];
-    vec2 vel = velocities[particle_id];
+    // Update position with scaled time
+    positions[global_id] += velocities[global_id] * delta_time * time_scale;
     
-    // Update position
-    pos += vel * delta_time;
+    // Simple attraction to gravity point with configurable strength
+    vec2 direction = normalize(gravity_point - positions[global_id]);
+    velocities[global_id] += direction * attraction_strength * delta_time * time_scale;
     
-    // Calculate force towards mouse
-    vec2 to_mouse = mouse_pos - pos;
-    float dist = length(to_mouse);
+    // Simple dampening
+    velocities[global_id] *= 0.9998;
     
-    if (dist > min_distance) {
-        float force_strength = force_scale / (dist + 1.0);
-        force_strength = min(force_strength, max_force);
-        
-        vel += normalize(to_mouse) * force_strength * delta_time;
-    }
-    
-    // Apply velocity limits
-    float speed = length(vel);
-    if (speed > terminal_velocity) {
-        vel = normalize(vel) * terminal_velocity;
-    }
-    
-    // Apply dampening
-    vel *= 1.0 - (damping * delta_time);
-    
-    // Store results
-    positions[particle_id] = pos;
-    velocities[particle_id] = vel;
-    velocityMags[particle_id] = length(vel);
+    // Store velocity magnitude for rendering
+    velocityMags[global_id] = length(velocities[global_id]);
 }
