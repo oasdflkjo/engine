@@ -12,18 +12,15 @@ void main() {
     vec4 viewPos = view * vec4(aPos, 0.0, 1.0);
     gl_Position = projection * viewPos;
     
-    float dist = length(viewPos.xyz);
-    float screenSize = 2.0 / dist;
-    
     vec2 screenPos = gl_Position.xy / gl_Position.w;
     float gridSize = 0.005;
     vec2 gridPos = floor(screenPos / gridSize);
     
-    uint particleID = gl_VertexID;
-    float random = fract(sin(dot(gridPos, vec2(12.9898, 78.233)) + float(particleID)) * 43758.5453);
-    
+    float random = fract(sin(dot(gridPos, vec2(12.9898, 78.233)) + float(gl_InstanceID)) * 43758.5453);
     should_render = random > 0.5 ? 1.0 : 0.0;
     
+    float dist = length(viewPos.xyz);
+    float screenSize = 2.0 / dist;
     float baseSize = 2.0;
     float velocityScale = clamp(aVelocityMag * 0.5, 0.5, 2.0);
     gl_PointSize = baseSize * velocityScale * screenSize;

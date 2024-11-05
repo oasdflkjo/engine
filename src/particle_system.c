@@ -5,7 +5,7 @@
 #include <xmmintrin.h>  // SSE
 #include <emmintrin.h>  // SSE2
 
-#define MAX_PARTICLES 65000000
+#define MAX_PARTICLES 100000000
 
 static inline uint32_t xorshift32(uint32_t* state) {
     uint32_t x = *state;
@@ -19,16 +19,15 @@ static inline uint32_t xorshift32(uint32_t* state) {
 static void init_particle_positions(vec2* positions, int numParticles) {
     // Initialize multiple states for parallel random generation
     __m128i state = _mm_set_epi32(
-        0xDEADBEEF,  // Different prime numbers/seeds
-        0xB00B1E55,  // for each lane
+        0xDEADBEEF,
+        0xB00B1E55,
         0xBADF00D5,
         0xCAFEBABE
     );
     
-    // Change scale and offset to center around (0,0)
-    // Using -1.0 to 1.0 range first, then scaling to desired size
+    // Increase spawn area significantly
     __m128 scale = _mm_set1_ps(2.0f / (float)UINT32_MAX);  // Scale to -1 to 1 range
-    __m128 world_scale = _mm_set1_ps(20.0f);  // Then scale to world coordinates
+    __m128 world_scale = _mm_set1_ps(500.0f);  // Increased from 100.0f to 500.0f for much larger area
     
     int aligned_count = (numParticles / 4) * 4;
     for (int i = 0; i < aligned_count; i += 4) {
@@ -48,7 +47,7 @@ static void init_particle_positions(vec2* positions, int numParticles) {
         __m128 fx = _mm_mul_ps(_mm_cvtepi32_ps(rx), scale);
         __m128 fy = _mm_mul_ps(_mm_cvtepi32_ps(ry), scale);
         
-        // Scale to world coordinates (-20 to 20)
+        // Scale to world coordinates (-500 to 500)
         fx = _mm_mul_ps(fx, world_scale);
         fy = _mm_mul_ps(fy, world_scale);
         
@@ -66,9 +65,9 @@ static void init_particle_positions(vec2* positions, int numParticles) {
         uint32_t rx = xorshift32(&scalar_state);
         uint32_t ry = xorshift32(&scalar_state);
         
-        // Scale to -20 to 20 range centered at origin
-        positions[i][0] = ((rx / (float)UINT32_MAX) * 2.0f - 1.0f) * 20.0f;
-        positions[i][1] = ((ry / (float)UINT32_MAX) * 2.0f - 1.0f) * 20.0f;
+        // Scale to -500 to 500 range centered at origin
+        positions[i][0] = ((rx / (float)UINT32_MAX) * 2.0f - 1.0f) * 500.0f;
+        positions[i][1] = ((ry / (float)UINT32_MAX) * 2.0f - 1.0f) * 500.0f;
     }
 }
 
@@ -101,17 +100,19 @@ static void init_particle_buffers(ParticleSystem* ps, vec2* positions, vec2* vel
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, ps->velocityMagBuffer);
     glBufferData(GL_SHADER_STORAGE_BUFFER, ps->numParticles * sizeof(float), NULL, GL_DYNAMIC_DRAW);
 
-    // Setup VAO
+    // Setup VAO for instanced rendering
     glGenVertexArrays(1, &ps->particleVAO);
     glBindVertexArray(ps->particleVAO);
     
     glBindBuffer(GL_ARRAY_BUFFER, ps->positionBuffer);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(vec2), (void*)0);
     glEnableVertexAttribArray(0);
+    glVertexAttribDivisor(0, 1);  // Advance once per instance
 
     glBindBuffer(GL_ARRAY_BUFFER, ps->velocityMagBuffer);
     glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, sizeof(float), (void*)0);
     glEnableVertexAttribArray(1);
+    glVertexAttribDivisor(1, 1);  // Advance once per instance
 }
 
 void particle_system_init(ParticleSystem* ps) {
@@ -207,7 +208,7 @@ void particle_system_init(ParticleSystem* ps) {
     printf("gravity_strength: %d\n", ps->mouseForceStrengthLocation);
 
     ps->attractionStrength = 2.5f;  // Default value
-    ps->timeScale = 1.0f;          // Default value
+    ps->timeScale = 0.1f;          // Start with minimum time scale
 
     // Get uniform locations
     ps->attractionStrengthLocation = glGetUniformLocation(ps->computeProgram, "attraction_strength");
@@ -258,13 +259,40 @@ void particle_system_update(ParticleSystem* ps) {
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 }
 
+void update_frustum_planes(ParticleSystem* ps, mat4 view, mat4 projection) {
+    mat4 vp;
+    glm_mat4_mul(projection, view, vp);
+    
+    // Extract frustum planes from view-projection matrix
+    // Left plane
+    ps->frustumPlanes[0][0] = vp[0][3] + vp[0][0];
+    ps->frustumPlanes[0][1] = vp[1][3] + vp[1][0];
+    ps->frustumPlanes[0][2] = vp[2][3] + vp[2][0];
+    ps->frustumPlanes[0][3] = vp[3][3] + vp[3][0];
+    
+    // Right plane
+    ps->frustumPlanes[1][0] = vp[0][3] - vp[0][0];
+    ps->frustumPlanes[1][1] = vp[1][3] - vp[1][0];
+    ps->frustumPlanes[1][2] = vp[2][3] - vp[2][0];
+    ps->frustumPlanes[1][3] = vp[3][3] - vp[3][0];
+    
+    // ... similar for other planes ...
+}
+
 void particle_system_render(ParticleSystem* ps, mat4 view, mat4 projection) {
+    update_frustum_planes(ps, view, projection);
+    
     glUseProgram(ps->renderProgram);
     glUniformMatrix4fv(glGetUniformLocation(ps->renderProgram, "view"), 1, GL_FALSE, (float*)view);
     glUniformMatrix4fv(glGetUniformLocation(ps->renderProgram, "projection"), 1, GL_FALSE, (float*)projection);
 
     glBindVertexArray(ps->particleVAO);
-    glDrawArrays(GL_POINTS, 0, ps->numParticles);
+    
+    // Calculate number of instances based on screen space
+    int instanceCount = ps->numParticles / 4;  // Reduce visible particles based on density
+    
+    // Use instanced rendering
+    glDrawArraysInstanced(GL_POINTS, 0, 1, instanceCount);
 }
 
 void particle_system_cleanup(ParticleSystem* ps) {

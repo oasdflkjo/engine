@@ -2,9 +2,23 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+#include <string>
+#include <sstream>
+#include <algorithm>
 
 static bool imgui_initialized = false;
 static bool show_hud = true;
+
+// Helper function to format numbers with commas manually
+static std::string format_with_separators(int value) {
+    std::string numStr = std::to_string(value);
+    int insertPosition = numStr.length() - 3;
+    while (insertPosition > 0) {
+        numStr.insert(insertPosition, ",");
+        insertPosition -= 3;
+    }
+    return numStr;
+}
 
 void hud_init(HUD* hud, ParticleSystem* ps) {
     hud->particleSystem = ps;
@@ -83,10 +97,10 @@ void hud_render(HUD* hud) {
     
     ImGui::Begin("Particle System Controls", nullptr, window_flags);
     
-    // Display performance stats
+    // Display performance stats with formatted particle count
     ImGui::Text("FPS: %.1f", hud->fps);
     ImGui::Text("Frame Time: %.2f ms", hud->frameTime);
-    ImGui::Text("Particle Count: %d", hud->particleCount);
+    ImGui::Text("Particle Count: %s", format_with_separators(hud->particleCount).c_str());
     
     ImGui::Separator();
     

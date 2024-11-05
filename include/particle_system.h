@@ -56,6 +56,9 @@ typedef struct {
     // Add uniform locations
     GLint attractionStrengthLocation;
     GLint timeScaleLocation;
+
+    // Frustum culling
+    vec4 frustumPlanes[6];  // For frustum culling
 } ParticleSystem;
 
 void particle_system_init(ParticleSystem* ps);
