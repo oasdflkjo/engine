@@ -5,7 +5,7 @@
 #include <xmmintrin.h>  // SSE
 #include <emmintrin.h>  // SSE2
 
-#define MAX_PARTICLES 100000000
+#define MAX_PARTICLES 70000000
 
 static inline uint32_t xorshift32(uint32_t* state) {
     uint32_t x = *state;
@@ -289,7 +289,7 @@ void particle_system_render(ParticleSystem* ps, mat4 view, mat4 projection) {
     glBindVertexArray(ps->particleVAO);
     
     // Calculate number of instances based on screen space
-    int instanceCount = ps->numParticles / 4;  // Reduce visible particles based on density
+    int instanceCount = ps->numParticles;// / 4;  // Reduce visible particles based on density
     
     // Use instanced rendering
     glDrawArraysInstanced(GL_POINTS, 0, 1, instanceCount);

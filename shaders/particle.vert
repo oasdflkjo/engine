@@ -6,19 +6,16 @@ uniform mat4 projection;
 uniform mat4 view;
 
 out float velocity_magnitude;
-out float should_render;
+out float should_render;  // We'll keep this but always set it to 1.0
 
 void main() {
     vec4 viewPos = view * vec4(aPos, 0.0, 1.0);
     gl_Position = projection * viewPos;
     
-    vec2 screenPos = gl_Position.xy / gl_Position.w;
-    float gridSize = 0.005;
-    vec2 gridPos = floor(screenPos / gridSize);
+    // Always render the particle
+    should_render = 1.0;
     
-    float random = fract(sin(dot(gridPos, vec2(12.9898, 78.233)) + float(gl_InstanceID)) * 43758.5453);
-    should_render = random > 0.5 ? 1.0 : 0.0;
-    
+    // Keep the distance-based size scaling
     float dist = length(viewPos.xyz);
     float screenSize = 2.0 / dist;
     float baseSize = 2.0;

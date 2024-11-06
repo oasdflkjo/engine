@@ -1,6 +1,6 @@
 #version 430 core
 in float velocity_magnitude;
-in float should_render;  // New input from vertex shader
+in float should_render;  // We'll keep this for compatibility
 out vec4 FragColor;
 
 vec3 hsv2rgb(vec3 c) {
@@ -10,12 +10,12 @@ vec3 hsv2rgb(vec3 c) {
 }
 
 void main() {
-    // Discard if this particle shouldn't be rendered
-    if (should_render < 0.5) {
-        discard;
-    }
+    // We can remove this check since should_render is always 1.0 now
+    // if (should_render < 0.5) {
+    //     discard;
+    // }
 
-    // Miami Vice inspired color palette
+    // Rest of your existing color calculation code
     vec3 slow_color = vec3(0.0, 0.8, 0.8);    // Cyan/Turquoise
     vec3 mid_color = vec3(0.9, 0.0, 0.9);     // Hot Pink/Magenta
     vec3 fast_color = vec3(0.98, 0.2, 0.85);  // Electric Pink
