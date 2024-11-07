@@ -17,3 +17,5 @@ A simple OpenGL project that sets up a window with GLFW, loads OpenGL functions 
 - **Particle Simulation**: Implement a simple particle simulation with OpenGL, showcasing basic physics and motion.
 - **Compute Shaders**: Experiment with compute shaders to handle high-performance operations directly on the GPU.
 - **Advanced Rendering**: Add shaders for visual effects, lighting, and possibly texturing.
+
+GNU General Public License
