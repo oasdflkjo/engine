@@ -47,4 +47,4 @@ A high-performance particle simulation system leveraging modern OpenGL features 
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+ GNU General Public License
