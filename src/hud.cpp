@@ -119,17 +119,17 @@ void hud_render(HUD* hud) {
                 ImGui::SetTooltip("Adjust simulation speed (0x - 20x)");
             }
 
-            // Add quick preset buttons for time scale
+            // Speed preset buttons
+            if (ImGui::Button("0.1x")) {
+                simulation_set_time_scale(current_simulation, 0.1f);
+            }
+            ImGui::SameLine();
             if (ImGui::Button("1x")) {
                 simulation_set_time_scale(current_simulation, 1.0f);
             }
             ImGui::SameLine();
             if (ImGui::Button("5x")) {
                 simulation_set_time_scale(current_simulation, 5.0f);
-            }
-            ImGui::SameLine();
-            if (ImGui::Button("10x")) {
-                simulation_set_time_scale(current_simulation, 10.0f);
             }
             ImGui::SameLine();
             if (ImGui::Button("20x")) {
