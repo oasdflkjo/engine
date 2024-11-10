@@ -9,8 +9,17 @@ static bool show_window = true;
 static bool show_menu_bar = true;
 static Simulation* current_simulation = nullptr;
 
+// Time scale interpolation
+static float current_time_scale = 1.0f;
+static float target_time_scale = 1.0f;
+static const float INTERPOLATION_DURATION = 2.0f;  // seconds
+
 void hud_init(HUD* hud, Simulation* simulation) {
     current_simulation = simulation;  // Store simulation pointer
+    
+    // Initialize time scales
+    current_time_scale = simulation_get_time_scale(simulation);
+    target_time_scale = current_time_scale;
     
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
@@ -61,6 +70,27 @@ void hud_update_stats(HUD* hud, float fps, int particleCount, float frameTime, f
     hud->particleCount = particleCount;
     hud->frameTime = frameTime;
     hud->deltaTime = deltaTime;
+    
+    // Update time scale interpolation
+    if (current_time_scale != target_time_scale) {
+        // Calculate the maximum change possible in this frame
+        float max_change = (deltaTime / INTERPOLATION_DURATION) * 20.0f; // 20.0f is our maximum time scale
+        
+        // Calculate direction and remaining distance
+        float direction = (target_time_scale > current_time_scale) ? 1.0f : -1.0f;
+        float remaining = fabsf(target_time_scale - current_time_scale);
+        
+        // Apply the smaller of max_change or remaining distance
+        float step = direction * fminf(max_change, remaining);
+        current_time_scale += step;
+        
+        // Check if we're close enough to snap to target
+        if (fabsf(current_time_scale - target_time_scale) < 0.001f) {
+            current_time_scale = target_time_scale;
+        }
+        
+        simulation_set_time_scale(current_simulation, current_time_scale);
+    }
 }
 
 void hud_toggle(HUD* hud) {
@@ -106,34 +136,27 @@ void hud_render(HUD* hud) {
             ImGui::Text("Frame Time: %.3f ms", hud->frameTime);
             ImGui::Text("Delta Time: %.3f ms", hud->deltaTime * 1000.0f);
             ImGui::Text("Particle Count: %d", hud->particleCount);
+            ImGui::Text("Current Time Scale: %.2fx", current_time_scale);
         }
         
         // Simulation controls
         if (ImGui::CollapsingHeader("Controls", ImGuiTreeNodeFlags_DefaultOpen)) {
-            // Time scale control with extended range
-            float timeScale = simulation_get_time_scale(current_simulation);
-            if (ImGui::SliderFloat("Time Scale", &timeScale, 0.0f, 20.0f, "%.2f")) {
-                simulation_set_time_scale(current_simulation, timeScale);
-            }
-            if (ImGui::IsItemHovered()) {
-                ImGui::SetTooltip("Adjust simulation speed (0x - 20x)");
-            }
-
-            // Speed preset buttons
+            // Time control buttons
+            ImGui::Text("Simulation Speed:");
             if (ImGui::Button("0.1x")) {
-                simulation_set_time_scale(current_simulation, 0.1f);
+                target_time_scale = 0.1f;
             }
             ImGui::SameLine();
             if (ImGui::Button("1x")) {
-                simulation_set_time_scale(current_simulation, 1.0f);
+                target_time_scale = 1.0f;
             }
             ImGui::SameLine();
             if (ImGui::Button("5x")) {
-                simulation_set_time_scale(current_simulation, 5.0f);
+                target_time_scale = 5.0f;
             }
             ImGui::SameLine();
             if (ImGui::Button("20x")) {
-                simulation_set_time_scale(current_simulation, 20.0f);
+                target_time_scale = 20.0f;
             }
 
             // Attraction strength control

@@ -27,7 +27,7 @@ void world_init(World* world, GLFWwindow* window, Simulation* simulation) {
     hud_init(&world->hud, world->simulation);
 }
 
-void world_render(World* world, Camera* camera) {
+void world_render(World* world) {
     static float lastFrame = 0.0f;
     float currentFrame = glfwGetTime();
     float deltaTime = currentFrame - lastFrame;
@@ -35,7 +35,6 @@ void world_render(World* world, Camera* camera) {
     
     world->simulation->deltaTime = deltaTime;
 
-    // If you want to sync gravity point with camera target, do it here explicitly
     simulation_set_gravity_point(world->simulation, 
                                world->camera.target[0], 
                                world->camera.target[1]);

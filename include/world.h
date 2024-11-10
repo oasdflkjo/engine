@@ -15,7 +15,11 @@ typedef struct World {
 } World;
 
 void world_init(World* world, GLFWwindow* window, Simulation* simulation);
-void world_render(World* world, Camera* camera);
+/**
+ * Renders the world and all its components
+ * @param world Pointer to the world instance
+ */
+void world_render(World* world);
 void world_cleanup(World* world);
 
 #endif // WORLD_H

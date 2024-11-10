@@ -131,7 +131,7 @@ int main() {
         // Update camera zoom and position
         camera_update(&world.camera, deltaTime);
 
-        world_render(&world, &world.camera);
+        world_render(&world);
 
         glfwSwapBuffers(window);
         

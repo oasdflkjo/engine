@@ -1,26 +1,31 @@
-#version 430 core
-layout (location = 0) in vec2 aPos;
-layout (location = 1) in float aVelocityMag;
+#version 430
 
-uniform mat4 projection;
+layout (location = 0) in vec2 position;
+layout (location = 1) in vec2 velocity;
+
 uniform mat4 view;
+uniform mat4 projection;
 
-out float velocity_magnitude;
-out float should_render;  // We'll keep this but always set it to 1.0
+out vec4 particleColor;
 
 void main() {
-    vec4 viewPos = view * vec4(aPos, 0.0, 1.0);
-    gl_Position = projection * viewPos;
+    gl_Position = projection * view * vec4(position, 0.0, 1.0);
     
-    // Always render the particle
-    should_render = 1.0;
+    // Calculate particle size based on camera distance (if needed)
+    gl_PointSize = 8.0;
     
-    // Keep the distance-based size scaling
-    float dist = length(viewPos.xyz);
-    float screenSize = 2.0 / dist;
-    float baseSize = 2.0;
-    float velocityScale = clamp(aVelocityMag * 0.5, 0.5, 2.0);
-    gl_PointSize = baseSize * velocityScale * screenSize;
+    // Calculate velocity magnitude
+    float speed = length(velocity);
     
-    velocity_magnitude = aVelocityMag;
+    // Use logarithmic scaling for better color distribution
+    float normalizedSpeed = log(1.0 + speed) / log(1.0 + 50.0); // 50.0 is max expected speed
+    
+    // Create a color gradient from cyan (slow) to pink (fast)
+    vec3 color = mix(
+        vec3(0.0, 0.8, 0.8),  // Cyan for slow particles
+        vec3(0.9, 0.2, 0.5),  // Pink for fast particles
+        normalizedSpeed
+    );
+    
+    particleColor = vec4(color, 1.0);
 }
