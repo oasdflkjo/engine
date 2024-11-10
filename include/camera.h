@@ -31,4 +31,13 @@ void camera_get_projection_matrix(Camera* camera, mat4 projection);
 void camera_reset(Camera* camera);
 void camera_set_target_callback(Camera* camera, CameraTargetChangedCallback callback, void* user_data);
 
+/**
+ * Converts screen coordinates to world coordinates
+ * @param camera The camera to use for the conversion
+ * @param xpos The x screen coordinate
+ * @param ypos The y screen coordinate
+ * @param world_pos Output vector to store the resulting world coordinates
+ */
+void camera_screen_to_world_coords(Camera* camera, double xpos, double ypos, vec2 world_pos);
+
 #endif // CAMERA_H
