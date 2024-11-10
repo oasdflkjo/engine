@@ -1,15 +1,14 @@
 #ifndef HUD_H
 #define HUD_H
 
-#include "particle_system.h"
 #include <GLFW/glfw3.h>
+#include "simulation.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef struct {
-    ParticleSystem* particleSystem;
+typedef struct HUD {
     GLFWwindow* window;
     float fps;
     int particleCount;
@@ -17,7 +16,7 @@ typedef struct {
     float deltaTime;
 } HUD;
 
-void hud_init(HUD* hud, ParticleSystem* ps);
+void hud_init(HUD* hud, Simulation* simulation);
 void hud_render(HUD* hud);
 void hud_cleanup(HUD* hud);
 void hud_update_stats(HUD* hud, float fps, int particleCount, float frameTime, float deltaTime);

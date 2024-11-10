@@ -2,62 +2,58 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
-#include <string>
-#include <sstream>
-#include <algorithm>
+#include "particle_system.h"
+#include <stdio.h>
 
-static bool imgui_initialized = false;
-static bool show_hud = true;
+static bool show_window = true;
+static bool show_menu_bar = true;
+static Simulation* current_simulation = nullptr;
 
-// Helper function to format numbers with commas manually
-static std::string format_with_separators(int value) {
-    std::string numStr = std::to_string(value);
-    int insertPosition = numStr.length() - 3;
-    while (insertPosition > 0) {
-        numStr.insert(insertPosition, ",");
-        insertPosition -= 3;
-    }
-    return numStr;
+void hud_init(HUD* hud, Simulation* simulation) {
+    current_simulation = simulation;  // Store simulation pointer
+    
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    
+    // Setup Platform/Renderer backends
+    ImGui_ImplGlfw_InitForOpenGL(hud->window, true);
+    ImGui_ImplOpenGL3_Init("#version 430");
+
+    // Get window size for proper scaling
+    int width, height;
+    glfwGetWindowSize(hud->window, &width, &height);
+    float scale = (float)height / 1080.0f; // Base scale on 1080p
+
+    // Setup font with proper scaling
+    io.Fonts->Clear();
+    ImFontConfig font_config;
+    font_config.SizePixels = 13.0f * scale;
+    font_config.OversampleH = 8;
+    font_config.OversampleV = 8;
+    font_config.PixelSnapH = true;
+    io.Fonts->AddFontDefault(&font_config);
+    io.Fonts->Build();
+
+    // Setup Dear ImGui style
+    ImGui::StyleColorsDark();
+    
+    // Scale style
+    ImGuiStyle& style = ImGui::GetStyle();
+    style.ScaleAllSizes(scale);
+    
+    // Customize colors for better visibility
+    ImVec4* colors = style.Colors;
+    colors[ImGuiCol_WindowBg] = ImVec4(0.06f, 0.06f, 0.06f, 0.94f);
+    colors[ImGuiCol_TitleBg] = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
+    colors[ImGuiCol_TitleBgActive] = ImVec4(0.16f, 0.16f, 0.16f, 1.00f);
 }
 
-void hud_init(HUD* hud, ParticleSystem* ps) {
-    hud->particleSystem = ps;
-    hud->fps = 0.0f;
-    hud->particleCount = 0;
-    hud->frameTime = 0.0f;
-    hud->deltaTime = 0.0f;
-
-    // Initialize ImGui only once
-    if (!imgui_initialized) {
-        IMGUI_CHECKVERSION();
-        ImGui::CreateContext();
-        ImGuiIO& io = ImGui::GetIO();
-        
-        // Increase font size and enable antialiasing
-        io.FontGlobalScale = 1.5f;
-        io.Fonts->AddFontDefault();
-        io.FontAllowUserScaling = true;
-        
-        // Enable antialiasing on fonts
-        io.Fonts->Build();
-        io.Fonts->TexDesiredWidth = 512;
-        io.Fonts->Flags |= ImFontAtlasFlags_NoBakedLines;
-        
-        // Setup Platform/Renderer bindings
-        ImGui_ImplGlfw_InitForOpenGL(hud->window, true);
-        ImGui_ImplOpenGL3_Init("#version 430");
-        
-        // Setup Dear ImGui style with antialiasing
-        ImGui::StyleColorsDark();
-        ImGuiStyle& style = ImGui::GetStyle();
-        style.WindowBorderSize = 1.0f;
-        style.WindowTitleAlign = ImVec2(0.5f, 0.5f);
-        style.AntiAliasedLines = true;
-        style.AntiAliasedFill = true;
-        style.AntiAliasedLinesUseTex = true;
-        
-        imgui_initialized = true;
-    }
+void hud_cleanup(HUD* hud) {
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 }
 
 void hud_update_stats(HUD* hud, float fps, int particleCount, float frameTime, float deltaTime) {
@@ -67,71 +63,93 @@ void hud_update_stats(HUD* hud, float fps, int particleCount, float frameTime, f
     hud->deltaTime = deltaTime;
 }
 
-void hud_render(HUD* hud) {
-    if (!show_hud) return;
+void hud_toggle(HUD* hud) {
+    show_window = !show_window;
+    show_menu_bar = !show_menu_bar;
+}
 
+void hud_render(HUD* hud) {
     // Start the Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    // Main menu bar
-    if (ImGui::BeginMainMenuBar()) {
-        if (ImGui::BeginMenu("File")) {
-            if (ImGui::MenuItem("Exit", "Esc")) {
-                glfwSetWindowShouldClose(hud->window, true);
+    // Main menu bar (only if visible)
+    if (show_menu_bar) {
+        if (ImGui::BeginMainMenuBar()) {
+            if (ImGui::BeginMenu("File")) {
+                if (ImGui::MenuItem("Exit")) {
+                    glfwSetWindowShouldClose(hud->window, true);
+                }
+                ImGui::EndMenu();
             }
-            ImGui::EndMenu();
+            ImGui::EndMainMenuBar();
         }
-        if (ImGui::BeginMenu("View")) {
-            if (ImGui::MenuItem("Toggle HUD", "H")) {
-                hud_toggle(hud);
+    }
+
+    // Stats and controls window
+    if (show_window) {
+        ImGuiIO& io = ImGui::GetIO();
+        ImVec2 window_pos(10.0f, show_menu_bar ? 30.0f : 10.0f);
+        ImVec2 window_size(250.0f * (io.DisplaySize.y / 1080.0f), 0.0f);
+        
+        ImGui::SetNextWindowPos(window_pos, ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(window_size, ImGuiCond_FirstUseEver);
+        
+        ImGui::Begin("Simulation Controls", &show_window, 
+                    ImGuiWindowFlags_NoSavedSettings | 
+                    ImGuiWindowFlags_AlwaysAutoResize);
+        
+        // Performance stats
+        if (ImGui::CollapsingHeader("Stats", ImGuiTreeNodeFlags_DefaultOpen)) {
+            ImGui::Text("FPS: %.1f", hud->fps);
+            ImGui::Text("Frame Time: %.3f ms", hud->frameTime);
+            ImGui::Text("Delta Time: %.3f ms", hud->deltaTime * 1000.0f);
+            ImGui::Text("Particle Count: %d", hud->particleCount);
+        }
+        
+        // Simulation controls
+        if (ImGui::CollapsingHeader("Controls", ImGuiTreeNodeFlags_DefaultOpen)) {
+            // Time scale control with extended range
+            float timeScale = simulation_get_time_scale(current_simulation);
+            if (ImGui::SliderFloat("Time Scale", &timeScale, 0.0f, 20.0f, "%.2f")) {
+                simulation_set_time_scale(current_simulation, timeScale);
             }
-            ImGui::EndMenu();
+            if (ImGui::IsItemHovered()) {
+                ImGui::SetTooltip("Adjust simulation speed (0x - 20x)");
+            }
+
+            // Add quick preset buttons for time scale
+            if (ImGui::Button("1x")) {
+                simulation_set_time_scale(current_simulation, 1.0f);
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("5x")) {
+                simulation_set_time_scale(current_simulation, 5.0f);
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("10x")) {
+                simulation_set_time_scale(current_simulation, 10.0f);
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("20x")) {
+                simulation_set_time_scale(current_simulation, 20.0f);
+            }
+
+            // Attraction strength control
+            float attractionStrength = simulation_get_attraction_strength(current_simulation);
+            if (ImGui::SliderFloat("Attraction", &attractionStrength, 0.0f, 2.0f, "%.2f")) {
+                simulation_set_attraction_strength(current_simulation, attractionStrength);
+            }
+            if (ImGui::IsItemHovered()) {
+                ImGui::SetTooltip("Adjust attraction force strength");
+            }
         }
-        ImGui::EndMainMenuBar();
+        
+        ImGui::End();
     }
 
-    // Controls window
-    ImGuiWindowFlags window_flags = ImGuiWindowFlags_None;
-    
-    ImGui::Begin("Particle System Controls", nullptr, window_flags);
-    
-    // Display performance stats with formatted particle count
-    ImGui::Text("FPS: %.1f", hud->fps);
-    ImGui::Text("Frame Time: %.2f ms", hud->frameTime);
-    ImGui::Text("Particle Count: %s", format_with_separators(hud->particleCount).c_str());
-    
-    ImGui::Separator();
-    
-    // Simulation Controls
-    ImGui::Text("Simulation Controls");
-    
-    float timeScale = hud->particleSystem->timeScale;
-    if (ImGui::SliderFloat("Time Scale", &timeScale, 0.1f, 2.0f)) {
-        particle_system_set_time_scale(hud->particleSystem, timeScale);
-    }
-    
-    float attractionStrength = hud->particleSystem->attractionStrength;
-    if (ImGui::SliderFloat("Attraction Strength", &attractionStrength, 0.1f, 10.0f)) {
-        particle_system_set_attraction_strength(hud->particleSystem, attractionStrength);
-    }
-
-    ImGui::End();
-
+    // Rendering
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-}
-
-void hud_cleanup(HUD* hud) {
-    if (imgui_initialized) {
-        ImGui_ImplOpenGL3_Shutdown();
-        ImGui_ImplGlfw_Shutdown();
-        ImGui::DestroyContext();
-        imgui_initialized = false;
-    }
-}
-
-void hud_toggle(HUD* hud) {
-    show_hud = !show_hud;
 }

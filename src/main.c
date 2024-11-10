@@ -4,6 +4,7 @@
 #include "camera.h"
 #include "world.h"
 #include "hud.h"
+#include "particle_simulation.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
@@ -105,7 +106,14 @@ int main() {
 
     // Initialize camera and world
     camera_init(&world.camera, windowWidth, windowHeight);
-    world_init(&world, window);
+
+    ParticleSimulation* simulation = particle_simulation_create();
+    if (!simulation) {
+        // Handle error
+        return -1;
+    }
+
+    world_init(&world, window, (Simulation*)simulation);
 
     // Add key callback
     glfwSetKeyCallback(window, key_callback);
@@ -137,6 +145,7 @@ int main() {
 
     // Cleanup
     world_cleanup(&world);
+    particle_simulation_destroy(simulation);
     glfwDestroyWindow(window);
     glfwTerminate();
 

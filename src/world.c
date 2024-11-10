@@ -2,21 +2,17 @@
 #include "shader.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <xmmintrin.h>  // SSE
-#include <emmintrin.h>  // SSE2
 #include <math.h>
 #include <GLFW/glfw3.h>
-#include "particle_system.h"
 
-// Add this function to handle camera target changes
 static void on_camera_target_changed(float x, float y, void* user_data) {
     World* world = (World*)user_data;
-    particle_system_set_gravity_point(&world->particles, x, y);
+    simulation_set_gravity_point(world->simulation, x, y);
 }
 
-void world_init(World* world, GLFWwindow* window) {
-    // Store window
+void world_init(World* world, GLFWwindow* window, Simulation* simulation) {
     world->window = window;
+    world->simulation = simulation;
     
     // Get window size
     int width, height;
@@ -28,17 +24,15 @@ void world_init(World* world, GLFWwindow* window) {
     // Initialize grid
     grid_init(&world->grid, 10.0f, 1.0f);
     
-    // Initialize particle system
-    particle_system_init(&world->particles);
+    // Initialize simulation
+    simulation_init(world->simulation);
 
     // Initialize HUD with window handle
-    world->hud.window = window;  // Set window handle before init
-    hud_init(&world->hud, &world->particles);
+    world->hud.window = window;
+    hud_init(&world->hud, world->simulation);
 
-    // Set up camera callback AFTER particle system is initialized
     camera_set_target_callback(&world->camera, on_camera_target_changed, world);
     
-    // Force an initial target update
     on_camera_target_changed(world->camera.target[0], 
                            world->camera.target[1], 
                            world);
@@ -50,15 +44,15 @@ void world_render(World* world, Camera* camera) {
     float deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
     
-    world->particles.deltaTime = deltaTime;
+    world->simulation->deltaTime = deltaTime;
 
-    // Update particles
-    particle_system_update(&world->particles);
+    // Update simulation
+    simulation_update(world->simulation);
 
     // Clear buffers
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // Get matrices from world's camera
+    // Get matrices from camera
     mat4 view;
     mat4 projection;
     camera_get_view_matrix(&world->camera, view);
@@ -67,8 +61,8 @@ void world_render(World* world, Camera* camera) {
     // Render grid
     grid_render(&world->grid, (float*)view, (float*)projection);
 
-    // Render particles
-    particle_system_render(&world->particles, view, projection);
+    // Render simulation
+    simulation_render(world->simulation, view, projection);
     
     // Calculate FPS and frame time
     static float fps = 0.0f;
@@ -83,7 +77,8 @@ void world_render(World* world, Camera* camera) {
     }
     
     // Update HUD stats
-    hud_update_stats(&world->hud, fps, world->particles.count, frameTime, deltaTime);
+    int particle_count = simulation_get_particle_count(world->simulation);
+    hud_update_stats(&world->hud, fps, particle_count, frameTime, deltaTime);
     
     // Render HUD
     hud_render(&world->hud);
@@ -91,7 +86,7 @@ void world_render(World* world, Camera* camera) {
 
 void world_cleanup(World* world) {
     grid_cleanup(&world->grid);
-    particle_system_cleanup(&world->particles);
+    simulation_cleanup(world->simulation);
     hud_cleanup(&world->hud);
 }
 
