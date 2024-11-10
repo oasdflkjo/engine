@@ -5,11 +5,6 @@
 #include <math.h>
 #include <GLFW/glfw3.h>
 
-static void on_camera_target_changed(float x, float y, void* user_data) {
-    World* world = (World*)user_data;
-    simulation_set_gravity_point(world->simulation, x, y);
-}
-
 void world_init(World* world, GLFWwindow* window, Simulation* simulation) {
     world->window = window;
     world->simulation = simulation;
@@ -30,12 +25,6 @@ void world_init(World* world, GLFWwindow* window, Simulation* simulation) {
     // Initialize HUD with window handle
     world->hud.window = window;
     hud_init(&world->hud, world->simulation);
-
-    camera_set_target_callback(&world->camera, on_camera_target_changed, world);
-    
-    on_camera_target_changed(world->camera.target[0], 
-                           world->camera.target[1], 
-                           world);
 }
 
 void world_render(World* world, Camera* camera) {
@@ -45,6 +34,11 @@ void world_render(World* world, Camera* camera) {
     lastFrame = currentFrame;
     
     world->simulation->deltaTime = deltaTime;
+
+    // If you want to sync gravity point with camera target, do it here explicitly
+    simulation_set_gravity_point(world->simulation, 
+                               world->camera.target[0], 
+                               world->camera.target[1]);
 
     // Update simulation
     simulation_update(world->simulation);
