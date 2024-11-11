@@ -2,49 +2,39 @@
 
 # OpenGL Particle Simulation
 
-A high-performance particle simulation system leveraging modern OpenGL features and GPU acceleration. This project demonstrates graphics programming techniques and parallel computing concepts through an interactive 3D particle system.
+A high-performance particle simulation system leveraging modern OpenGL features and GPU acceleration. This project demonstrates graphics programming techniques and parallel computing concepts through an interactive 2D particle system.
 
 ## Features
 
 ### Core Systems
 - **GPU-Accelerated Particle Physics**
-  - Compute shader-based particle calculations
-  - SSBO (Shader Storage Buffer Object) management
-  - Real-time position and velocity updates
-  
-- **SIMD Optimizations**
-  - CPU-side particle initialization using SSE/SSE2
-  - Optimized memory layout for vectorized operations
+  - Real-time particle position and velocity updates
+  - Gravity point influence system
+  - Delta time-based simulation stepping
 
 - **Modern OpenGL Pipeline**
-  - Compute shaders for physics calculations
   - Vertex/Fragment shaders for rendering
   - VAO/VBO management for efficient rendering
   - Custom shader compilation and management system
 
 ### Visualization & Interaction
 - **Dynamic Grid System**
-  - Grid for spatial reference
+  - Configurable reference grid
+  - Scale and spacing controls
   
 - **Interactive Controls**
-  - Mouse-based particle interaction
-  - 2D camera navigation system
+  - Mouse-based gravity point control
+  - Camera pan and zoom functionality
+  - Real-time simulation parameter adjustment
+
+- **Performance Monitoring**
+  - Real-time FPS counter
+  - Frame time tracking
+  - Particle count display
+  - Delta time monitoring
 
 ### Dependencies
 - **GLFW** - Window management and OpenGL context
-- **CGLM** - Optimized graphics mathematics library
+- **CGLM** - Graphics mathematics library
 - **GLAD** - OpenGL function loader
-- **Dear ImGui** - User interface (dummy init done)
-
-## Future Development
-
-- [ ] ImGui integration for real-time parameter tuning
-- [ ] Additional particle behaviors and effects
-- [ ] Advanced rendering techniques (shadows, lighting)
-- [ ] Particle collision system
-- [ ] Multi-threaded CPU particle updates
-- [ ] Particle emission patterns and systems
-
-## License
-
- GNU General Public License
+- **Dear ImGui** - Debug UI and statistics display
