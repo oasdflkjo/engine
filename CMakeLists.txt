@@ -9,16 +9,16 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Define source files
-set(SOURCE_FILES 
-    src/main.c 
-    src/camera.c 
-    src/world.c 
-    src/grid.c 
-    src/shader.c 
-    src/particle_system.c 
-    src/particle_simulation.c 
-    src/hud.cpp
+# Find all source files using wildcards
+file(GLOB_RECURSE SOURCES 
+    "src/*.c"
+    "src/*.cpp"
+)
+
+# Find all header files (optional, but good for IDE support)
+file(GLOB_RECURSE HEADERS
+    "include/*.h"
+    "include/*.hpp"
 )
 
 # Add GLFW
@@ -52,7 +52,7 @@ target_include_directories(imgui PUBLIC
 target_link_libraries(imgui PUBLIC glfw)
 
 # Add main executable
-add_executable(main ${SOURCE_FILES})
+add_executable(main ${SOURCES} ${HEADERS})
 
 # Set include directories
 target_include_directories(main PRIVATE

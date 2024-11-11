@@ -1,6 +1,7 @@
 #ifndef PARTICLE_SYSTEM_H
 #define PARTICLE_SYSTEM_H
 
+#include "simulation.h"
 #include <cglm/cglm.h>
 
 // Forward declare OpenGL types
@@ -73,6 +74,10 @@ void particle_system_set_damping(ParticleSystem* ps, float damping);
 void particle_system_set_terminal_velocity(ParticleSystem* ps, float velocity);
 void particle_system_set_attraction_strength(ParticleSystem* ps, float strength);
 void particle_system_set_time_scale(ParticleSystem* ps, float scale);
+
+// Add these new function declarations
+Simulation* create_particle_simulation(void);
+void destroy_particle_simulation(Simulation* sim);
 
 #ifdef __cplusplus
 }
