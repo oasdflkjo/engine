@@ -336,90 +336,29 @@ void particle_system_set_time_scale(ParticleSystem* ps, float scale) {
     ps->timeScale = scale;
 }
 
-static void particle_system_sim_init(Simulation* sim) {
-    ParticleSystem* ps = (ParticleSystem*)sim->impl;
-    particle_system_init(ps);
-}
-
-static void particle_system_sim_cleanup(Simulation* sim) {
-    ParticleSystem* ps = (ParticleSystem*)sim->impl;
-    particle_system_cleanup(ps);
-}
-
-static void particle_system_sim_update(Simulation* sim) {
-    ParticleSystem* ps = (ParticleSystem*)sim->impl;
-    ps->deltaTime = sim->deltaTime;
-    particle_system_update(ps);
-}
-
-static void particle_system_sim_render(Simulation* sim, mat4 view, mat4 projection) {
-    ParticleSystem* ps = (ParticleSystem*)sim->impl;
-    particle_system_render(ps, view, projection);
-}
-
-static void particle_system_sim_set_gravity_point(Simulation* sim, float x, float y) {
-    ParticleSystem* ps = (ParticleSystem*)sim->impl;
-    particle_system_set_gravity_point(ps, x, y);
-}
-
-static int particle_system_sim_get_particle_count(Simulation* sim) {
-    ParticleSystem* ps = (ParticleSystem*)sim->impl;
-    return ps->count;
-}
-
-static float particle_system_sim_get_time_scale(Simulation* sim) {
-    ParticleSystem* ps = (ParticleSystem*)sim->impl;
+float particle_system_get_time_scale(ParticleSystem* ps) {
     return ps->timeScale;
 }
 
-static void particle_system_sim_set_time_scale(Simulation* sim, float scale) {
-    ParticleSystem* ps = (ParticleSystem*)sim->impl;
-    particle_system_set_time_scale(ps, scale);
-}
-
-static float particle_system_sim_get_attraction_strength(Simulation* sim) {
-    ParticleSystem* ps = (ParticleSystem*)sim->impl;
+float particle_system_get_attraction_strength(ParticleSystem* ps) {
     return ps->attractionStrength;
 }
 
-static void particle_system_sim_set_attraction_strength(Simulation* sim, float strength) {
-    ParticleSystem* ps = (ParticleSystem*)sim->impl;
-    particle_system_set_attraction_strength(ps, strength);
-}
-
-static SimulationVTable particle_system_vtable = {
-    .init = particle_system_sim_init,
-    .cleanup = particle_system_sim_cleanup,
-    .update = particle_system_sim_update,
-    .render = particle_system_sim_render,
-    .set_gravity_point = particle_system_sim_set_gravity_point,
-    .get_particle_count = particle_system_sim_get_particle_count,
-    .get_time_scale = particle_system_sim_get_time_scale,
-    .set_time_scale = particle_system_sim_set_time_scale,
-    .get_attraction_strength = particle_system_sim_get_attraction_strength,
-    .set_attraction_strength = particle_system_sim_set_attraction_strength
-};
-
-Simulation* create_particle_simulation(void) {
-    Simulation* sim = malloc(sizeof(Simulation));
+ParticleSystem* particle_system_create(void) {
     ParticleSystem* ps = malloc(sizeof(ParticleSystem));
-    
-    if (!sim || !ps) {
-        free(sim);
-        free(ps);
+    if (!ps) {
         return NULL;
     }
     
-    sim->vtable = &particle_system_vtable;
-    sim->deltaTime = 0.0f;
-    sim->impl = ps;
-    
-    return sim;
+    ps->deltaTime = 0.0f;
+    ps->timeScale = 1.0f;  // Set default time scale
+    ps->attractionStrength = 1.0f;  // Set default attraction strength
+    return ps;
 }
 
-void destroy_particle_simulation(Simulation* sim) {
-    if (sim) {
-        free(sim->impl);
-        free(sim);
+void particle_system_destroy(ParticleSystem* ps) {
+    if (ps) {
+        particle_system_cleanup(ps);  // Clean up OpenGL resources first
+        free(ps);
     }
 }

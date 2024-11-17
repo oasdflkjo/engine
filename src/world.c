@@ -5,9 +5,9 @@
 #include <math.h>
 #include <GLFW/glfw3.h>
 
-void world_init(World* world, GLFWwindow* window, Simulation* simulation) {
+void world_init(World* world, GLFWwindow* window, ParticleSystem* ps) {
     world->window = window;
-    world->simulation = simulation;
+    world->particle_system = ps;
     
     // Get window size
     int width, height;
@@ -19,12 +19,12 @@ void world_init(World* world, GLFWwindow* window, Simulation* simulation) {
     // Initialize grid
     grid_init(&world->grid, 10.0f, 1.0f);
     
-    // Initialize simulation
-    simulation_init(world->simulation);
+    // Initialize particle system
+    particle_system_init(world->particle_system);
 
     // Initialize HUD with window handle
     world->hud.window = window;
-    hud_init(&world->hud, world->simulation);
+    hud_init(&world->hud, world->particle_system);
 }
 
 void world_render(World* world) {
@@ -33,14 +33,14 @@ void world_render(World* world) {
     float deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
     
-    world->simulation->deltaTime = deltaTime;
+    world->particle_system->deltaTime = deltaTime;
 
-    simulation_set_gravity_point(world->simulation, 
-                               world->camera.target[0], 
-                               world->camera.target[1]);
+    particle_system_set_gravity_point(world->particle_system, 
+                                    world->camera.target[0], 
+                                    world->camera.target[1]);
 
     // Update simulation
-    simulation_update(world->simulation);
+    particle_system_update(world->particle_system);
 
     // Clear buffers
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -54,8 +54,8 @@ void world_render(World* world) {
     // Render grid
     grid_render(&world->grid, (float*)view, (float*)projection);
 
-    // Render simulation
-    simulation_render(world->simulation, view, projection);
+    // Render particles
+    particle_system_render(world->particle_system, view, projection);
     
     // Calculate FPS and frame time
     static float fps = 0.0f;
@@ -70,8 +70,7 @@ void world_render(World* world) {
     }
     
     // Update HUD stats
-    int particle_count = simulation_get_particle_count(world->simulation);
-    hud_update_stats(&world->hud, fps, particle_count, frameTime, deltaTime);
+    hud_update_stats(&world->hud, fps, world->particle_system->count, frameTime, deltaTime);
     
     // Render HUD
     hud_render(&world->hud);
@@ -79,6 +78,6 @@ void world_render(World* world) {
 
 void world_cleanup(World* world) {
     grid_cleanup(&world->grid);
-    simulation_cleanup(world->simulation);
+    particle_system_cleanup(world->particle_system);
     hud_cleanup(&world->hud);
 }

@@ -79,6 +79,12 @@ void particle_system_set_time_scale(ParticleSystem* ps, float scale);
 Simulation* create_particle_simulation(void);
 void destroy_particle_simulation(Simulation* sim);
 
+// Add these function declarations:
+ParticleSystem* particle_system_create(void);
+void particle_system_destroy(ParticleSystem* ps);
+float particle_system_get_time_scale(ParticleSystem* ps);
+float particle_system_get_attraction_strength(ParticleSystem* ps);
+
 #ifdef __cplusplus
 }
 #endif

@@ -107,13 +107,13 @@ int main() {
     // Initialize camera and world
     camera_init(&world.camera, windowWidth, windowHeight);
 
-    Simulation* sim = create_particle_simulation();
-    if (!sim) {
+    ParticleSystem* ps = particle_system_create();
+    if (!ps) {
         // Handle error
         return -1;
     }
 
-    world_init(&world, window, sim);
+    world_init(&world, window, ps);
 
     // Add key callback
     glfwSetKeyCallback(window, key_callback);
@@ -145,7 +145,7 @@ int main() {
 
     // Cleanup
     world_cleanup(&world);
-    destroy_particle_simulation(sim);
+    particle_system_destroy(ps);
     glfwDestroyWindow(window);
     glfwTerminate();
 

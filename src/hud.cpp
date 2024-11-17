@@ -7,18 +7,20 @@
 
 static bool show_window = true;
 static bool show_menu_bar = true;
-static Simulation* current_simulation = nullptr;
+static ParticleSystem* current_simulation = nullptr;
 
 // Time scale interpolation
 static float current_time_scale = 1.0f;
 static float target_time_scale = 1.0f;
 static const float INTERPOLATION_DURATION = 2.0f;  // seconds
 
-void hud_init(HUD* hud, Simulation* simulation) {
-    current_simulation = simulation;  // Store simulation pointer
+extern "C" {
+
+void hud_init(HUD* hud, ParticleSystem* ps) {
+    current_simulation = ps;  // Store simulation pointer
     
     // Initialize time scales
-    current_time_scale = simulation_get_time_scale(simulation);
+    current_time_scale = particle_system_get_time_scale(ps);
     target_time_scale = current_time_scale;
     
     // Setup Dear ImGui context
@@ -89,7 +91,7 @@ void hud_update_stats(HUD* hud, float fps, int particleCount, float frameTime, f
             current_time_scale = target_time_scale;
         }
         
-        simulation_set_time_scale(current_simulation, current_time_scale);
+        particle_system_set_time_scale(current_simulation, current_time_scale);
     }
 }
 
@@ -160,9 +162,9 @@ void hud_render(HUD* hud) {
             }
 
             // Attraction strength control
-            float attractionStrength = simulation_get_attraction_strength(current_simulation);
+            float attractionStrength = particle_system_get_attraction_strength(current_simulation);
             if (ImGui::SliderFloat("Attraction", &attractionStrength, 0.0f, 2.0f, "%.2f")) {
-                simulation_set_attraction_strength(current_simulation, attractionStrength);
+                particle_system_set_attraction_strength(current_simulation, attractionStrength);
             }
             if (ImGui::IsItemHovered()) {
                 ImGui::SetTooltip("Adjust attraction force strength");
@@ -176,3 +178,5 @@ void hud_render(HUD* hud) {
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
+
+} // extern "C"
