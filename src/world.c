@@ -77,7 +77,16 @@ void world_render(World* world) {
 }
 
 void world_cleanup(World* world) {
-    grid_cleanup(&world->grid);
-    particle_system_cleanup(world->particle_system);
+    if (!world) return;
+
+    // First cleanup HUD (ImGui)
     hud_cleanup(&world->hud);
+    
+    // Then cleanup particle system
+    if (world->particle_system) {
+        particle_system_cleanup(world->particle_system);
+    }
+    
+    // Finally cleanup grid
+    grid_cleanup(&world->grid);
 }

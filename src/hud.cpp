@@ -10,8 +10,8 @@ static bool show_menu_bar = true;
 static ParticleSystem* current_simulation = nullptr;
 
 // Time scale interpolation
-static float current_time_scale = 1.0f;
-static float target_time_scale = 1.0f;
+static float current_time_scale = 0.1f;
+static float target_time_scale = 0.1f;
 static const float INTERPOLATION_DURATION = 2.0f;  // seconds
 
 extern "C" {

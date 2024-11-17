@@ -1,119 +1,10 @@
 #include "particle_system.h"
+#include "buffer_manager.h"
 #include "shader.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <xmmintrin.h>  // SSE
-#include <emmintrin.h>  // SSE2
 
 #define MAX_PARTICLES 60000000
-
-static inline uint32_t xorshift32(uint32_t* state) {
-    uint32_t x = *state;
-    x ^= x << 13;
-    x ^= x >> 17;
-    x ^= x << 5;
-    *state = x;
-    return x;
-}
-
-static void init_particle_positions(vec2* positions, int numParticles) {
-    // Initialize multiple states for parallel random generation
-    __m128i state = _mm_set_epi32(
-        0xDEADBEEF,
-        0xB00B1E55,
-        0xBADF00D5,
-        0xCAFEBABE
-    );
-    
-    // Increase spawn area significantly
-    __m128 scale = _mm_set1_ps(2.0f / (float)UINT32_MAX);  // Scale to -1 to 1 range
-    __m128 world_scale = _mm_set1_ps(500.0f);  // Increased from 100.0f to 500.0f for much larger area
-    
-    int aligned_count = (numParticles / 4) * 4;
-    for (int i = 0; i < aligned_count; i += 4) {
-        // Generate random numbers using XOR-shift (same as before)
-        __m128i rx = state;
-        rx = _mm_xor_si128(rx, _mm_slli_epi32(rx, 13));
-        rx = _mm_xor_si128(rx, _mm_srli_epi32(rx, 17));
-        rx = _mm_xor_si128(rx, _mm_slli_epi32(rx, 5));
-        state = rx;
-        
-        __m128i ry = rx;
-        ry = _mm_xor_si128(ry, _mm_slli_epi32(ry, 13));
-        ry = _mm_xor_si128(ry, _mm_srli_epi32(ry, 17));
-        ry = _mm_xor_si128(ry, _mm_slli_epi32(ry, 5));
-        
-        // Convert to floats and scale to -1 to 1 range
-        __m128 fx = _mm_mul_ps(_mm_cvtepi32_ps(rx), scale);
-        __m128 fy = _mm_mul_ps(_mm_cvtepi32_ps(ry), scale);
-        
-        // Scale to world coordinates (-500 to 500)
-        fx = _mm_mul_ps(fx, world_scale);
-        fy = _mm_mul_ps(fy, world_scale);
-        
-        // Store interleaved x,y coordinates
-        __m128 xy0 = _mm_unpacklo_ps(fx, fy);
-        __m128 xy1 = _mm_unpackhi_ps(fx, fy);
-        
-        _mm_store_ps((float*)&positions[i], xy0);
-        _mm_store_ps((float*)&positions[i + 2], xy1);
-    }
-    
-    // Handle remaining particles
-    uint32_t scalar_state = 0xCAFEBABE;
-    for (int i = aligned_count; i < numParticles; i++) {
-        uint32_t rx = xorshift32(&scalar_state);
-        uint32_t ry = xorshift32(&scalar_state);
-        
-        // Scale to -500 to 500 range centered at origin
-        positions[i][0] = ((rx / (float)UINT32_MAX) * 2.0f - 1.0f) * 500.0f;
-        positions[i][1] = ((ry / (float)UINT32_MAX) * 2.0f - 1.0f) * 500.0f;
-    }
-}
-
-static void simd_zero_velocities(vec2* velocities, int numParticles) {
-    __m128 zero = _mm_setzero_ps();
-    
-    int aligned_count = (numParticles / 2) * 2;
-    for (int i = 0; i < aligned_count; i += 2) {
-        _mm_store_ps((float*)&velocities[i], zero);
-    }
-    
-    for (int i = aligned_count; i < numParticles; i++) {
-        velocities[i][0] = 0.0f;
-        velocities[i][1] = 0.0f;
-    }
-}
-
-static void init_particle_buffers(ParticleSystem* ps, vec2* positions, vec2* velocities) {
-    glGenBuffers(1, &ps->positionBuffer);
-    glGenBuffers(1, &ps->velocityBuffer);
-    glGenBuffers(1, &ps->velocityMagBuffer);
-
-    // Remove glBufferStorage and use simpler setup
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ps->positionBuffer);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, ps->numParticles * sizeof(vec2), positions, GL_DYNAMIC_DRAW);
-
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ps->velocityBuffer);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, ps->numParticles * sizeof(vec2), velocities, GL_DYNAMIC_DRAW);
-
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ps->velocityMagBuffer);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, ps->numParticles * sizeof(float), NULL, GL_DYNAMIC_DRAW);
-
-    // Setup VAO for instanced rendering
-    glGenVertexArrays(1, &ps->particleVAO);
-    glBindVertexArray(ps->particleVAO);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, ps->positionBuffer);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(vec2), (void*)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribDivisor(0, 1);  // Advance once per instance
-
-    glBindBuffer(GL_ARRAY_BUFFER, ps->velocityMagBuffer);
-    glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, sizeof(float), (void*)0);
-    glEnableVertexAttribArray(1);
-    glVertexAttribDivisor(1, 1);  // Advance once per instance
-}
 
 ParticleSystem* particle_system_create(void) {
     ParticleSystem* ps = malloc(sizeof(ParticleSystem));
@@ -125,7 +16,7 @@ ParticleSystem* particle_system_create(void) {
     ps->numParticles = MAX_PARTICLES;
     ps->count = ps->numParticles;
     ps->deltaTime = 0.0f;
-    ps->timeScale = 1.0f;
+    ps->timeScale = 0.1f;
     ps->attractionStrength = 1.0f;
     ps->gravityPoint[0] = 0.0f;
     ps->gravityPoint[1] = 0.0f;
@@ -142,43 +33,80 @@ ParticleSystem* particle_system_create(void) {
     return ps;
 }
 
-void particle_system_init(ParticleSystem* ps) {
-    // Initialize shaders
-    char* computeSource = read_shader_file("shaders/particle.comp");
-    char* vertexSource = read_shader_file("shaders/particle.vert");
-    char* fragmentSource = read_shader_file("shaders/particle.frag");
-
-    if (!computeSource || !vertexSource || !fragmentSource) {
-        free(computeSource);
-        free(vertexSource);
-        free(fragmentSource);
-        fprintf(stderr, "Failed to load shader sources\n");
-        return;
+static bool init_shaders(ParticleSystem* ps) {
+    const char* compute_files[] = {"shaders/particle.comp"};
+    GLenum compute_types[] = {GL_COMPUTE_SHADER};
+    ps->computeProgram = shader_program_create(compute_files, compute_types, 1);
+    if (!ps->computeProgram) {
+        return false;
     }
 
-    // Compile and link shaders
-    unsigned int computeShader = compile_shader(computeSource, GL_COMPUTE_SHADER);
-    unsigned int vertexShader = compile_shader(vertexSource, GL_VERTEX_SHADER);
-    unsigned int fragmentShader = compile_shader(fragmentSource, GL_FRAGMENT_SHADER);
+    const char* render_files[] = {
+        "shaders/particle.vert",
+        "shaders/particle.frag"
+    };
+    GLenum render_types[] = {
+        GL_VERTEX_SHADER,
+        GL_FRAGMENT_SHADER
+    };
+    ps->renderProgram = shader_program_create(render_files, render_types, 2);
+    if (!ps->renderProgram) {
+        shader_program_destroy(ps->computeProgram);
+        return false;
+    }
 
-    ps->computeProgram = glCreateProgram();
-    glAttachShader(ps->computeProgram, computeShader);
-    glLinkProgram(ps->computeProgram);
-    check_program_linking(ps->computeProgram, "Compute");
-    glDeleteShader(computeShader);
+    // Cache uniform locations for compute program
+    const char* compute_uniforms[] = {
+        "delta_time",
+        "gravity_point",
+        "num_particles",
+        "particle_offset",
+        "batch_size",
+        "min_distance",
+        "force_scale",
+        "max_force",
+        "terminal_velocity",
+        "damping",
+        "gravity_radius",
+        "gravity_strength",
+        "attraction_strength",
+        "time_scale"
+    };
+    shader_program_cache_uniforms(ps->computeProgram, compute_uniforms, sizeof(compute_uniforms)/sizeof(compute_uniforms[0]));
 
-    ps->renderProgram = glCreateProgram();
-    glAttachShader(ps->renderProgram, vertexShader);
-    glAttachShader(ps->renderProgram, fragmentShader);
-    glLinkProgram(ps->renderProgram);
-    check_program_linking(ps->renderProgram, "Render");
-    
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-    
-    free(computeSource);
-    free(vertexSource);
-    free(fragmentSource);
+    return true;
+}
+
+static void init_uniform_locations(ParticleSystem* ps) {
+    struct UniformInfo {
+        const char* name;
+        GLint* location;
+    } uniforms[] = {
+        {"delta_time", &ps->deltaTimeLocation},
+        {"gravity_point", &ps->gravityPointLocation},
+        {"num_particles", &ps->numParticlesLocation},
+        {"particle_offset", &ps->particleOffsetLocation},
+        {"batch_size", &ps->batchSizeLocation},
+        {"min_distance", &ps->minDistanceLocation},
+        {"force_scale", &ps->forceScaleLocation},
+        {"max_force", &ps->maxForceLocation},
+        {"terminal_velocity", &ps->terminalVelocityLocation},
+        {"damping", &ps->dampingLocation},
+        {"gravity_radius", &ps->mouseForceRadiusLocation},
+        {"gravity_strength", &ps->mouseForceStrengthLocation},
+        {"attraction_strength", &ps->attractionStrengthLocation},
+        {"time_scale", &ps->timeScaleLocation}
+    };
+
+    for (size_t i = 0; i < sizeof(uniforms)/sizeof(uniforms[0]); i++) {
+        *uniforms[i].location = shader_program_get_uniform(ps->computeProgram, uniforms[i].name);
+    }
+}
+
+void particle_system_init(ParticleSystem* ps) {
+    if (!init_shaders(ps)) {
+        return;
+    }
 
     // Initialize particle data
     vec2* positions = (vec2*)malloc(ps->numParticles * sizeof(vec2));
@@ -190,131 +118,132 @@ void particle_system_init(ParticleSystem* ps) {
         return;
     }
 
+    // Use buffer manager functions
     init_particle_positions(positions, ps->numParticles);
-    simd_zero_velocities(velocities, ps->numParticles);
-    init_particle_buffers(ps, positions, velocities);
+    zero_particle_velocities(velocities, ps->numParticles);
+    
+    // Create buffers using buffer manager
+    ParticleBuffers buffers = create_particle_buffers(ps->numParticles, positions, velocities);
+    ps->positionBuffer = buffers.positionBuffer;
+    ps->velocityBuffer = buffers.velocityBuffer;
+    ps->velocityMagBuffer = buffers.velocityMagBuffer;
+    ps->particleVAO = buffers.particleVAO;
 
     free(positions);
     free(velocities);
 
-    // Cache uniform locations
-    ps->deltaTimeLocation = glGetUniformLocation(ps->computeProgram, "delta_time");
-    ps->gravityPointLocation = glGetUniformLocation(ps->computeProgram, "gravity_point");
-    ps->numParticlesLocation = glGetUniformLocation(ps->computeProgram, "num_particles");
-    ps->particleOffsetLocation = glGetUniformLocation(ps->computeProgram, "particle_offset");
-    ps->batchSizeLocation = glGetUniformLocation(ps->computeProgram, "batch_size");
-    
-    // Physics parameter uniforms
-    ps->minDistanceLocation = glGetUniformLocation(ps->computeProgram, "min_distance");
-    ps->forceScaleLocation = glGetUniformLocation(ps->computeProgram, "force_scale");
-    ps->maxForceLocation = glGetUniformLocation(ps->computeProgram, "max_force");
-    ps->terminalVelocityLocation = glGetUniformLocation(ps->computeProgram, "terminal_velocity");
-    ps->dampingLocation = glGetUniformLocation(ps->computeProgram, "damping");
-    ps->mouseForceRadiusLocation = glGetUniformLocation(ps->computeProgram, "gravity_radius");
-    ps->mouseForceStrengthLocation = glGetUniformLocation(ps->computeProgram, "gravity_strength");
+    init_uniform_locations(ps);
+}
 
-    // Debug print to verify uniform locations
-    printf("Uniform locations:\n");
-    printf("gravity_point: %d\n", ps->gravityPointLocation);
-    printf("gravity_radius: %d\n", ps->mouseForceRadiusLocation);
-    printf("gravity_strength: %d\n", ps->mouseForceStrengthLocation);
+struct UniformUpdate {
+    GLint location;
+    GLenum type;
+    union {
+        float f;
+        int i;
+        float v2[2];
+    } value;
+};
 
-    ps->attractionStrength = 2.5f;  // Default value
-    ps->timeScale = 0.1f;          // Start with minimum time scale
+#define UNIFORM_UPDATE(loc, type, val) { \
+    struct UniformUpdate update = {loc, type, {.f = (float)(val)}}; \
+    switch (type) { \
+        case GL_FLOAT: glUniform1f(update.location, update.value.f); break; \
+        case GL_INT: glUniform1i(update.location, (int)update.value.f); break; \
+        case GL_FLOAT_VEC2: glUniform2fv(update.location, 1, (float*)&update.value); break; \
+    } \
+}
 
-    // Get uniform locations
-    ps->attractionStrengthLocation = glGetUniformLocation(ps->computeProgram, "attraction_strength");
-    ps->timeScaleLocation = glGetUniformLocation(ps->computeProgram, "time_scale");
+static void update_uniforms(ParticleSystem* ps) {
+    shader_program_use(ps->computeProgram);
+    shader_program_set_float(ps->computeProgram, "delta_time", ps->deltaTime);
+    shader_program_set_int(ps->computeProgram, "num_particles", ps->numParticles);
+    shader_program_set_float(ps->computeProgram, "min_distance", ps->minDistance);
+    shader_program_set_float(ps->computeProgram, "force_scale", ps->forceScale);
+    shader_program_set_float(ps->computeProgram, "max_force", ps->maxForce);
+    shader_program_set_float(ps->computeProgram, "terminal_velocity", ps->terminalVelocity);
+    shader_program_set_float(ps->computeProgram, "damping", ps->damping);
+    shader_program_set_float(ps->computeProgram, "gravity_radius", ps->mouseForceRadius);
+    shader_program_set_float(ps->computeProgram, "gravity_strength", ps->mouseForceStrength);
+    shader_program_set_float(ps->computeProgram, "attraction_strength", ps->attractionStrength);
+    shader_program_set_float(ps->computeProgram, "time_scale", ps->timeScale);
+    shader_program_set_vec2(ps->computeProgram, "gravity_point", ps->gravityPoint[0], ps->gravityPoint[1]);
 }
 
 void particle_system_update(ParticleSystem* ps) {
     const int WORK_GROUP_SIZE = 32;
-    const int PARTICLES_PER_GROUP = WORK_GROUP_SIZE * WORK_GROUP_SIZE;
     
-    glUseProgram(ps->computeProgram);
-    
-    // Set all uniforms
-    glUniform1f(ps->deltaTimeLocation, ps->deltaTime);
-    glUniform2fv(ps->gravityPointLocation, 1, ps->gravityPoint);
-    glUniform1i(ps->numParticlesLocation, ps->numParticles);
-    
-    // Set physics parameter uniforms
-    glUniform1f(ps->minDistanceLocation, ps->minDistance);
-    glUniform1f(ps->forceScaleLocation, ps->forceScale);
-    glUniform1f(ps->maxForceLocation, ps->maxForce);
-    glUniform1f(ps->terminalVelocityLocation, ps->terminalVelocity);
-    glUniform1f(ps->dampingLocation, ps->damping);
-    glUniform1f(ps->mouseForceRadiusLocation, ps->mouseForceRadius);
-    glUniform1f(ps->mouseForceStrengthLocation, ps->mouseForceStrength);
-    
-    // Set uniforms
-    glUniform1f(ps->attractionStrengthLocation, ps->attractionStrength);
-    glUniform1f(ps->timeScaleLocation, ps->timeScale);
+    shader_program_use(ps->computeProgram);
+    update_uniforms(ps);
     
     // Bind buffers
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ps->positionBuffer);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, ps->velocityBuffer);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, ps->velocityMagBuffer);
 
-    // Calculate total number of work groups needed
-    int total_groups = (ps->numParticles + PARTICLES_PER_GROUP - 1) / PARTICLES_PER_GROUP;
+    // Calculate dispatch dimensions
+    int particles_per_group = WORK_GROUP_SIZE * WORK_GROUP_SIZE;
+    int groups = (ps->numParticles + particles_per_group - 1) / particles_per_group;
+    int side = (int)ceil(sqrt(groups));
     
-    // Calculate grid dimensions
-    int groups_x = (int)ceil(sqrt((double)total_groups));
-    int groups_y = (total_groups + groups_x - 1) / groups_x;
-    
-    // Single dispatch for all particles
-    glUniform1i(ps->particleOffsetLocation, 0);
-    glUniform1i(ps->batchSizeLocation, ps->numParticles);
-    
-    glDispatchCompute(groups_x, groups_y, 1);
+    glDispatchCompute(side, side, 1);
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 }
 
 void particle_system_render(ParticleSystem* ps, mat4 view, mat4 projection) {
-    glUseProgram(ps->renderProgram);
-    glUniformMatrix4fv(glGetUniformLocation(ps->renderProgram, "view"), 1, GL_FALSE, (float*)view);
-    glUniformMatrix4fv(glGetUniformLocation(ps->renderProgram, "projection"), 1, GL_FALSE, (float*)projection);
+    shader_program_use(ps->renderProgram);
+    shader_program_set_mat4(ps->renderProgram, "view", (float*)view);
+    shader_program_set_mat4(ps->renderProgram, "projection", (float*)projection);
 
     glBindVertexArray(ps->particleVAO);
-    
-    // Calculate number of instances based on screen space
-    int instanceCount = ps->numParticles;
-    
-    // Use instanced rendering
-    glDrawArraysInstanced(GL_POINTS, 0, 1, instanceCount);
+    glDrawArraysInstanced(GL_POINTS, 0, 1, ps->numParticles);
 }
 
 void particle_system_cleanup(ParticleSystem* ps) {
-    glDeleteVertexArrays(1, &ps->particleVAO);
-    glDeleteBuffers(1, &ps->positionBuffer);
-    glDeleteBuffers(1, &ps->velocityBuffer);
-    glDeleteBuffers(1, &ps->velocityMagBuffer);
-    glDeleteProgram(ps->computeProgram);
-    glDeleteProgram(ps->renderProgram);
+    if (!ps) return;
+
+    // First destroy buffers
+    ParticleBuffers buffers = {
+        .positionBuffer = ps->positionBuffer,
+        .velocityBuffer = ps->velocityBuffer,
+        .velocityMagBuffer = ps->velocityMagBuffer,
+        .particleVAO = ps->particleVAO
+    };
+    destroy_particle_buffers(&buffers);
+    
+    // Then destroy shader programs
+    if (ps->computeProgram) {
+        shader_program_destroy(ps->computeProgram);
+        ps->computeProgram = NULL;
+    }
+    if (ps->renderProgram) {
+        shader_program_destroy(ps->renderProgram);
+        ps->renderProgram = NULL;
+    }
 }
 
+// Simple parameter setters
 void particle_system_set_gravity_point(ParticleSystem* ps, float x, float y) {
     ps->gravityPoint[0] = x;
     ps->gravityPoint[1] = y;
 }
 
+static void particle_system_set_float_param(ParticleSystem* ps, float value, float* param, const char* uniform_name) {
+    *param = value;
+    shader_program_use(ps->computeProgram);
+    shader_program_set_float(ps->computeProgram, uniform_name, value);
+}
+
 void particle_system_set_force_scale(ParticleSystem* ps, float scale) {
-    ps->forceScale = scale;
-    glUseProgram(ps->computeProgram);
-    glUniform1f(ps->forceScaleLocation, scale);
+    particle_system_set_float_param(ps, scale, &ps->forceScale, "force_scale");
 }
 
 void particle_system_set_damping(ParticleSystem* ps, float damping) {
-    ps->damping = damping;
-    glUseProgram(ps->computeProgram);
-    glUniform1f(ps->dampingLocation, damping);
+    particle_system_set_float_param(ps, damping, &ps->damping, "damping");
 }
 
 void particle_system_set_terminal_velocity(ParticleSystem* ps, float velocity) {
-    ps->terminalVelocity = velocity;
-    glUseProgram(ps->computeProgram);
-    glUniform1f(ps->terminalVelocityLocation, velocity);
+    particle_system_set_float_param(ps, velocity, &ps->terminalVelocity, "terminal_velocity");
 }
 
 void particle_system_set_attraction_strength(ParticleSystem* ps, float strength) {
@@ -335,7 +264,7 @@ float particle_system_get_attraction_strength(ParticleSystem* ps) {
 
 void particle_system_destroy(ParticleSystem* ps) {
     if (ps) {
-        particle_system_cleanup(ps);  // Clean up OpenGL resources first
+        particle_system_cleanup(ps);
         free(ps);
     }
 }

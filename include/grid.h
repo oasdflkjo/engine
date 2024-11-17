@@ -17,4 +17,4 @@ void grid_init(Grid* grid, float size, float spacing);
 void grid_render(Grid* grid, float* view, float* projection);
 void grid_cleanup(Grid* grid);
 
-#endif // GRID_H 
+#endif // GRID_H

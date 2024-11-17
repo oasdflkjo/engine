@@ -1,11 +1,8 @@
 #ifndef PARTICLE_SYSTEM_H
 #define PARTICLE_SYSTEM_H
 
+#include "shader_program.h"
 #include <cglm/cglm.h>
-
-// Forward declare OpenGL types
-typedef unsigned int GLuint;
-typedef int GLint;
 
 #ifdef __cplusplus
 extern "C" {
@@ -23,8 +20,10 @@ typedef struct {
     GLuint velocityBuffer;
     GLuint velocityMagBuffer;
     GLuint particleVAO;
-    GLuint computeProgram;
-    GLuint renderProgram;
+    
+    // Shader programs
+    ShaderProgram* computeProgram;
+    ShaderProgram* renderProgram;
 
     // Physics parameters
     float minDistance;
@@ -76,4 +75,4 @@ float particle_system_get_attraction_strength(ParticleSystem* ps);
 }
 #endif
 
-#endif // PARTICLE_SYSTEM_H 
+#endif // PARTICLE_SYSTEM_H

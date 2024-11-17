@@ -27,4 +27,4 @@ void hud_toggle(HUD* hud);
 }
 #endif
 
-#endif // HUD_H 
+#endif // HUD_H
