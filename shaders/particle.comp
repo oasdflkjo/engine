@@ -33,7 +33,7 @@ void main() {
     velocities[global_id] += direction * attraction_strength * delta_time * time_scale;
     
     // Simple dampening
-    velocities[global_id] *= 0.9998;
+    velocities[global_id] *= 0.9988;
     
     // Store velocity magnitude for rendering
     velocityMags[global_id] = length(velocities[global_id]);

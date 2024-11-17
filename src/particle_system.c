@@ -260,29 +260,7 @@ void particle_system_update(ParticleSystem* ps) {
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 }
 
-void update_frustum_planes(ParticleSystem* ps, mat4 view, mat4 projection) {
-    mat4 vp;
-    glm_mat4_mul(projection, view, vp);
-    
-    // Extract frustum planes from view-projection matrix
-    // Left plane
-    ps->frustumPlanes[0][0] = vp[0][3] + vp[0][0];
-    ps->frustumPlanes[0][1] = vp[1][3] + vp[1][0];
-    ps->frustumPlanes[0][2] = vp[2][3] + vp[2][0];
-    ps->frustumPlanes[0][3] = vp[3][3] + vp[3][0];
-    
-    // Right plane
-    ps->frustumPlanes[1][0] = vp[0][3] - vp[0][0];
-    ps->frustumPlanes[1][1] = vp[1][3] - vp[1][0];
-    ps->frustumPlanes[1][2] = vp[2][3] - vp[2][0];
-    ps->frustumPlanes[1][3] = vp[3][3] - vp[3][0];
-    
-    // ... similar for other planes ...
-}
-
 void particle_system_render(ParticleSystem* ps, mat4 view, mat4 projection) {
-    update_frustum_planes(ps, view, projection);
-    
     glUseProgram(ps->renderProgram);
     glUniformMatrix4fv(glGetUniformLocation(ps->renderProgram, "view"), 1, GL_FALSE, (float*)view);
     glUniformMatrix4fv(glGetUniformLocation(ps->renderProgram, "projection"), 1, GL_FALSE, (float*)projection);
@@ -290,7 +268,7 @@ void particle_system_render(ParticleSystem* ps, mat4 view, mat4 projection) {
     glBindVertexArray(ps->particleVAO);
     
     // Calculate number of instances based on screen space
-    int instanceCount = ps->numParticles;// / 4;  // Reduce visible particles based on density
+    int instanceCount = ps->numParticles;
     
     // Use instanced rendering
     glDrawArraysInstanced(GL_POINTS, 0, 1, instanceCount);
