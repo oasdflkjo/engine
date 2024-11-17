@@ -1,10 +1,11 @@
 #include "particle_system.h"
 #include "buffer_manager.h"
 #include "shader.h"
+#include <GLFW/glfw3.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-#define MAX_PARTICLES 60000000
+#define MAX_PARTICLES 62000000
 
 ParticleSystem* particle_system_create(void) {
     ParticleSystem* ps = malloc(sizeof(ParticleSystem));
@@ -103,6 +104,49 @@ static void init_uniform_locations(ParticleSystem* ps) {
     }
 }
 
+static void create_color_lut(ParticleSystem* ps) {
+    const int LUT_SIZE = 256;
+    vec4 colorData[LUT_SIZE];
+    
+    // Generate Miami Vice color gradient
+    for (int i = 0; i < LUT_SIZE; i++) {
+        float t = i / (float)(LUT_SIZE - 1);
+        
+        // Hot pink and cyan colors
+        vec3 hotPink = {1.0f, 0.1f, 0.8f};
+        vec3 babyBlue = {0.2f, 0.8f, 1.0f};
+        
+        // Smooth interpolation
+        float smoothT = t * t * (3.0f - 2.0f * t);  // Smoothstep
+        colorData[i][0] = babyBlue[0] + (hotPink[0] - babyBlue[0]) * smoothT;
+        colorData[i][1] = babyBlue[1] + (hotPink[1] - babyBlue[1]) * smoothT;
+        colorData[i][2] = babyBlue[2] + (hotPink[2] - babyBlue[2]) * smoothT;
+        colorData[i][3] = 1.0f;  // Alpha
+    }
+    
+    glGenBuffers(1, &ps->colorLUT);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ps->colorLUT);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(colorData), colorData, GL_STATIC_DRAW);
+}
+
+static void create_trig_lut(ParticleSystem* ps) {
+    const int LUT_SIZE = 1024;
+    vec2 trigData[LUT_SIZE];  // x = sin, y = cos
+    
+    for (int i = 0; i < LUT_SIZE; i++) {
+        float angle = (i / (float)LUT_SIZE) * 2.0f * 3.14159f;
+        trigData[i][0] = sinf(angle);
+        trigData[i][1] = cosf(angle);
+    }
+    
+    glGenTextures(1, &ps->trigLUT);
+    glBindTexture(GL_TEXTURE_1D, ps->trigLUT);
+    glTexImage1D(GL_TEXTURE_1D, 0, GL_RG32F, LUT_SIZE, 0, GL_RG, GL_FLOAT, trigData);
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+}
+
 void particle_system_init(ParticleSystem* ps) {
     if (!init_shaders(ps)) {
         return;
@@ -133,6 +177,15 @@ void particle_system_init(ParticleSystem* ps) {
     free(velocities);
 
     init_uniform_locations(ps);
+
+    // Create LUTs
+    create_color_lut(ps);
+    create_trig_lut(ps);
+    
+    // Cache LUT uniform locations
+    ps->colorLUTLocation = shader_program_get_uniform(ps->renderProgram, "colorLUT");
+    ps->trigLUTLocation = shader_program_get_uniform(ps->renderProgram, "trigLUT");
+    ps->timeLocation = shader_program_get_uniform(ps->renderProgram, "time");
 }
 
 struct UniformUpdate {
@@ -194,6 +247,9 @@ void particle_system_render(ParticleSystem* ps, mat4 view, mat4 projection) {
     shader_program_use(ps->renderProgram);
     shader_program_set_mat4(ps->renderProgram, "view", (float*)view);
     shader_program_set_mat4(ps->renderProgram, "projection", (float*)projection);
+    
+    // Bind color LUT as storage buffer
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, ps->colorLUT);
 
     glBindVertexArray(ps->particleVAO);
     glDrawArraysInstanced(GL_POINTS, 0, 1, ps->numParticles);
@@ -202,6 +258,10 @@ void particle_system_render(ParticleSystem* ps, mat4 view, mat4 projection) {
 void particle_system_cleanup(ParticleSystem* ps) {
     if (!ps) return;
 
+    // Delete LUT textures
+    glDeleteTextures(1, &ps->colorLUT);
+    glDeleteTextures(1, &ps->trigLUT);
+    
     // First destroy buffers
     ParticleBuffers buffers = {
         .positionBuffer = ps->positionBuffer,

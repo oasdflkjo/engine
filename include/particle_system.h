@@ -51,6 +51,15 @@ typedef struct {
     GLint mouseForceStrengthLocation;
     GLint attractionStrengthLocation;
     GLint timeScaleLocation;
+
+    // LUT textures
+    GLuint colorLUT;     // 256-entry color gradient texture
+    GLuint trigLUT;      // 1024-entry sin/cos texture
+    
+    // LUT uniform locations
+    GLint colorLUTLocation;
+    GLint trigLUTLocation;
+    GLint timeLocation;  // For animation
 } ParticleSystem;
 
 // Core functions
