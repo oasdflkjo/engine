@@ -1,6 +1,5 @@
 #include "particle_system.h"
 #include "shader.h"
-#include "simulation.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <xmmintrin.h>  // SSE
@@ -116,13 +115,34 @@ static void init_particle_buffers(ParticleSystem* ps, vec2* positions, vec2* vel
     glVertexAttribDivisor(1, 1);  // Advance once per instance
 }
 
-void particle_system_init(ParticleSystem* ps) {
+ParticleSystem* particle_system_create(void) {
+    ParticleSystem* ps = malloc(sizeof(ParticleSystem));
+    if (!ps) {
+        return NULL;
+    }
+    
+    // Initialize default values
     ps->numParticles = MAX_PARTICLES;
-    ps->count = ps->numParticles;  // Set count to match actual number of particles
+    ps->count = ps->numParticles;
+    ps->deltaTime = 0.0f;
+    ps->timeScale = 1.0f;
+    ps->attractionStrength = 1.0f;
     ps->gravityPoint[0] = 0.0f;
     ps->gravityPoint[1] = 0.0f;
-    ps->deltaTime = 0.0f;
     
+    // Initialize physics parameters with default values
+    ps->minDistance = 0.0001f;
+    ps->forceScale = 150.0f;
+    ps->maxForce = 200.0f;
+    ps->terminalVelocity = 100.0f;
+    ps->damping = 0.9f;
+    ps->mouseForceRadius = 5.0f;
+    ps->mouseForceStrength = 1.0f;
+    
+    return ps;
+}
+
+void particle_system_init(ParticleSystem* ps) {
     // Initialize shaders
     char* computeSource = read_shader_file("shaders/particle.comp");
     char* vertexSource = read_shader_file("shaders/particle.vert");
@@ -176,15 +196,6 @@ void particle_system_init(ParticleSystem* ps) {
 
     free(positions);
     free(velocities);
-
-    // Initialize physics parameters with default values
-    ps->minDistance = 0.0001f;
-    ps->forceScale = 150.0f;
-    ps->maxForce = 200.0f;
-    ps->terminalVelocity = 100.0f;
-    ps->damping = 0.9f;
-    ps->mouseForceRadius = 5.0f;
-    ps->mouseForceStrength = 1.0f;
 
     // Cache uniform locations
     ps->deltaTimeLocation = glGetUniformLocation(ps->computeProgram, "delta_time");
@@ -320,18 +331,6 @@ float particle_system_get_time_scale(ParticleSystem* ps) {
 
 float particle_system_get_attraction_strength(ParticleSystem* ps) {
     return ps->attractionStrength;
-}
-
-ParticleSystem* particle_system_create(void) {
-    ParticleSystem* ps = malloc(sizeof(ParticleSystem));
-    if (!ps) {
-        return NULL;
-    }
-    
-    ps->deltaTime = 0.0f;
-    ps->timeScale = 1.0f;  // Set default time scale
-    ps->attractionStrength = 1.0f;  // Set default attraction strength
-    return ps;
 }
 
 void particle_system_destroy(ParticleSystem* ps) {
