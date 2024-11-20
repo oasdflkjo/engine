@@ -52,7 +52,13 @@ target_include_directories(imgui PUBLIC
 target_link_libraries(imgui PUBLIC glfw)
 
 # Add main executable
-add_executable(main ${SOURCES} ${HEADERS})
+add_executable(main 
+    src/main.c
+    src/camera.c
+    src/grid.c
+    src/shader.c
+    src/world.c
+)
 
 # Set include directories
 target_include_directories(main PRIVATE

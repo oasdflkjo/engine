@@ -3,8 +3,6 @@
 #include <stdio.h>
 #include "camera.h"
 #include "world.h"
-#include "hud.h"
-#include "particle_system.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
@@ -46,9 +44,9 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         return;
 
     switch (key) {
-        case GLFW_KEY_H:
+        /*case GLFW_KEY_H:
             hud_toggle(&world.hud);
-            break;
+            break;*/
         case GLFW_KEY_ESCAPE:
             glfwSetWindowShouldClose(window, true);
             break;
@@ -107,13 +105,8 @@ int main() {
     // Initialize camera and world
     camera_init(&world.camera, windowWidth, windowHeight);
 
-    ParticleSystem* ps = particle_system_create();
-    if (!ps) {
-        // Handle error
-        return -1;
-    }
 
-    world_init(&world, window, ps);
+    world_init(&world, window);
 
     // Add key callback
     glfwSetKeyCallback(window, key_callback);
@@ -145,7 +138,6 @@ int main() {
 
     // Cleanup
     world_cleanup(&world);
-    particle_system_destroy(ps);
     glfwDestroyWindow(window);
     glfwTerminate();
 

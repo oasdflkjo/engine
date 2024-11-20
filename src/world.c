@@ -5,9 +5,8 @@
 #include <math.h>
 #include <GLFW/glfw3.h>
 
-void world_init(World* world, GLFWwindow* window, ParticleSystem* ps) {
+void world_init(World* world, GLFWwindow* window) {
     world->window = window;
-    world->particle_system = ps;
     
     // Get window size
     int width, height;
@@ -18,13 +17,6 @@ void world_init(World* world, GLFWwindow* window, ParticleSystem* ps) {
     
     // Initialize grid
     grid_init(&world->grid, 10.0f, 1.0f);
-    
-    // Initialize particle system
-    particle_system_init(world->particle_system);
-
-    // Initialize HUD with window handle
-    world->hud.window = window;
-    hud_init(&world->hud, world->particle_system);
 }
 
 void world_render(World* world) {
@@ -33,15 +25,6 @@ void world_render(World* world) {
     float deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
     
-    world->particle_system->deltaTime = deltaTime;
-
-    particle_system_set_gravity_point(world->particle_system, 
-                                    world->camera.target[0], 
-                                    world->camera.target[1]);
-
-    // Update simulation
-    particle_system_update(world->particle_system);
-
     // Clear buffers
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -54,9 +37,6 @@ void world_render(World* world) {
     // Render grid
     grid_render(&world->grid, (float*)view, (float*)projection);
 
-    // Render particles
-    particle_system_render(world->particle_system, view, projection);
-    
     // Calculate FPS and frame time
     static float fps = 0.0f;
     static float frameTime = 0.0f;
@@ -68,25 +48,9 @@ void world_render(World* world) {
         frameTime = deltaTime * 1000.0f;
         fpsUpdateTimer = 0.0f;
     }
-    
-    // Update HUD stats
-    hud_update_stats(&world->hud, fps, world->particle_system->count, frameTime, deltaTime);
-    
-    // Render HUD
-    hud_render(&world->hud);
 }
 
 void world_cleanup(World* world) {
     if (!world) return;
-
-    // First cleanup HUD (ImGui)
-    hud_cleanup(&world->hud);
-    
-    // Then cleanup particle system
-    if (world->particle_system) {
-        particle_system_cleanup(world->particle_system);
-    }
-    
-    // Finally cleanup grid
     grid_cleanup(&world->grid);
 }
