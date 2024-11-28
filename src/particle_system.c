@@ -5,7 +5,7 @@
 #include <xmmintrin.h>  // SSE
 #include <emmintrin.h>  // SSE2
 
-#define MAX_PARTICLES 65000000
+#define MAX_PARTICLES 70000000
 
 static inline uint32_t xorshift32(uint32_t* state) {
     uint32_t x = *state;
@@ -87,29 +87,43 @@ static void simd_zero_velocities(vec2* velocities, int numParticles) {
 }
 
 static void init_particle_buffers(ParticleSystem* ps, vec2* positions, vec2* velocities) {
-    glGenBuffers(1, &ps->positionBuffer);
-    glGenBuffers(1, &ps->velocityBuffer);
-    glGenBuffers(1, &ps->velocityMagBuffer);
+    // Generate triple buffers
+    glGenBuffers(3, ps->positionBuffers);
+    glGenBuffers(3, ps->velocityBuffers);
+    glGenBuffers(3, ps->velocityMagBuffers);
 
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ps->positionBuffer);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, ps->numParticles * sizeof(vec2), positions, GL_DYNAMIC_DRAW);
+    // Initialize all three sets of buffers
+    for (int i = 0; i < 3; i++) {
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, ps->positionBuffers[i]);
+        glBufferData(GL_SHADER_STORAGE_BUFFER, ps->numParticles * sizeof(vec2), positions, GL_DYNAMIC_DRAW);
 
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ps->velocityBuffer);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, ps->numParticles * sizeof(vec2), velocities, GL_DYNAMIC_DRAW);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, ps->velocityBuffers[i]);
+        glBufferData(GL_SHADER_STORAGE_BUFFER, ps->numParticles * sizeof(vec2), velocities, GL_DYNAMIC_DRAW);
 
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ps->velocityMagBuffer);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, ps->numParticles * sizeof(float), NULL, GL_DYNAMIC_DRAW);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, ps->velocityMagBuffers[i]);
+        glBufferData(GL_SHADER_STORAGE_BUFFER, ps->numParticles * sizeof(float), NULL, GL_DYNAMIC_DRAW);
+    }
 
+    // Initialize VAO with first buffer set
     glGenVertexArrays(1, &ps->particleVAO);
     glBindVertexArray(ps->particleVAO);
     
-    glBindBuffer(GL_ARRAY_BUFFER, ps->positionBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, ps->positionBuffers[0]);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(vec2), (void*)0);
     glEnableVertexAttribArray(0);
 
-    glBindBuffer(GL_ARRAY_BUFFER, ps->velocityMagBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, ps->velocityMagBuffers[0]);
     glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, sizeof(float), (void*)0);
     glEnableVertexAttribArray(1);
+
+    // Initialize indices and fences
+    ps->computeIndex = 0;
+    ps->renderIndex = 2;
+    ps->nextIndex = 1;
+
+    for (int i = 0; i < 3; i++) {
+        ps->fences[i] = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+    }
 }
 
 void particle_system_init(ParticleSystem* ps) {
@@ -177,35 +191,82 @@ void particle_system_init(ParticleSystem* ps) {
 void particle_system_update(ParticleSystem* ps) {
     glUseProgram(ps->computeProgram);
     
+    // Set uniforms
     glUniform1f(glGetUniformLocation(ps->computeProgram, "delta_time"), ps->deltaTime);
     glUniform2fv(glGetUniformLocation(ps->computeProgram, "mouse_pos"), 1, ps->mousePos);
     glUniform1i(glGetUniformLocation(ps->computeProgram, "num_particles"), ps->numParticles);
 
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ps->positionBuffer);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, ps->velocityBuffer);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, ps->velocityMagBuffer);
+    // Wait for compute buffer to be available
+    if (ps->fences[ps->computeIndex]) {
+        GLenum result = glClientWaitSync(ps->fences[ps->computeIndex], GL_SYNC_FLUSH_COMMANDS_BIT, GL_TIMEOUT_IGNORED);
+        glDeleteSync(ps->fences[ps->computeIndex]);
+        ps->fences[ps->computeIndex] = 0;
+    }
 
+    // Bind buffers for compute shader
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ps->positionBuffers[ps->nextIndex]);    // Read from next
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, ps->velocityBuffers[ps->nextIndex]);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, ps->velocityMagBuffers[ps->nextIndex]);
+    
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, ps->positionBuffers[ps->computeIndex]); // Write to compute
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, ps->velocityBuffers[ps->computeIndex]);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, ps->velocityMagBuffers[ps->computeIndex]);
+
+    // Dispatch compute shader
     int workGroupSize = 256;
     int numWorkGroups = (ps->numParticles + workGroupSize - 1) / workGroupSize;
     glDispatchCompute(numWorkGroups, 1, 1);
-
+    
+    // Create fence for compute operation
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+    ps->fences[ps->computeIndex] = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
 }
 
 void particle_system_render(ParticleSystem* ps, mat4 view, mat4 projection) {
+    // Wait for the next buffer to be ready
+    if (ps->fences[ps->nextIndex]) {
+        GLenum result = glClientWaitSync(ps->fences[ps->nextIndex], GL_SYNC_FLUSH_COMMANDS_BIT, GL_TIMEOUT_IGNORED);
+        glDeleteSync(ps->fences[ps->nextIndex]);
+        ps->fences[ps->nextIndex] = 0;
+    }
+
     glUseProgram(ps->renderProgram);
     glUniformMatrix4fv(glGetUniformLocation(ps->renderProgram, "view"), 1, GL_FALSE, (float*)view);
     glUniformMatrix4fv(glGetUniformLocation(ps->renderProgram, "projection"), 1, GL_FALSE, (float*)projection);
 
+    // Update VAO to use next buffer
     glBindVertexArray(ps->particleVAO);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, ps->positionBuffers[ps->nextIndex]);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(vec2), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, ps->velocityMagBuffers[ps->nextIndex]);
+    glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, sizeof(float), (void*)0);
+    glEnableVertexAttribArray(1);
+
+    // Draw particles
     glDrawArrays(GL_POINTS, 0, ps->numParticles);
+
+    // Rotate buffer indices after rendering
+    GLuint temp = ps->renderIndex;
+    ps->renderIndex = ps->nextIndex;
+    ps->nextIndex = ps->computeIndex;
+    ps->computeIndex = temp;
 }
 
 void particle_system_cleanup(ParticleSystem* ps) {
     glDeleteVertexArrays(1, &ps->particleVAO);
-    glDeleteBuffers(1, &ps->positionBuffer);
-    glDeleteBuffers(1, &ps->velocityBuffer);
-    glDeleteBuffers(1, &ps->velocityMagBuffer);
+    glDeleteBuffers(3, ps->positionBuffers);
+    glDeleteBuffers(3, ps->velocityBuffers);
+    glDeleteBuffers(3, ps->velocityMagBuffers);
+    
+    for (int i = 0; i < 3; i++) {
+        if (ps->fences[i]) {
+            glDeleteSync(ps->fences[i]);
+        }
+    }
+    
     glDeleteProgram(ps->computeProgram);
     glDeleteProgram(ps->renderProgram);
 }

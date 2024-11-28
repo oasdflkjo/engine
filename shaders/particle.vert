@@ -8,8 +8,11 @@ uniform mat4 view;
 out float velocity_magnitude;
 
 void main() {
-    gl_Position = projection * view * vec4(aPos, 0.0, 1.0);
+    vec2 position = aPos;
+    float vel_mag = aVelocityMag;
+    
+    gl_Position = projection * view * vec4(position, 0.0, 1.0);
     gl_PointSize = 2.0;
     
-    velocity_magnitude = aVelocityMag;
+    velocity_magnitude = vel_mag;
 }
