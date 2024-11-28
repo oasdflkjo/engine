@@ -230,7 +230,7 @@ void particle_system_update(ParticleSystem *ps)
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, ps->velocityMagBuffers[ps->computeIndex]);
 
     // Dispatch compute shader
-    int workGroupSize = 256;
+    int workGroupSize = 1024;
     int numWorkGroups = (ps->numParticles + workGroupSize - 1) / workGroupSize;
     glDispatchCompute(numWorkGroups, 1, 1);
 

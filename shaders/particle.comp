@@ -28,7 +28,7 @@ uniform float delta_time;
 uniform vec2 mouse_pos;
 uniform int num_particles;
 
-layout(local_size_x = 256) in;
+layout(local_size_x = 1024) in;
 
 void main() {
     uint index = gl_GlobalInvocationID.x;
@@ -37,10 +37,9 @@ void main() {
     vec2 pos = positions_in[index];
     vec2 vel = velocities_in[index];
 
-    // Update velocity
+    // Combined acceleration and dampening
     vec2 direction = normalize(mouse_pos - pos);
-    vel += direction * 2.5 * delta_time;
-    vel *= 0.9998; // dampening
+    vel = vel * 0.9998 + direction * 2.5 * delta_time;
 
     // Update position
     pos += vel * delta_time;

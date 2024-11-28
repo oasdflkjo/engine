@@ -13,7 +13,7 @@ void hud_init(HUD* hud) {
 
 void hud_render(HUD* hud) {
     // Set window position to top-right corner with some padding
-    ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 250, 30), ImGuiCond_Always);
+    ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 270, 30), ImGuiCond_Always);
     ImGui::SetNextWindowBgAlpha(0.35f); // Transparent background
     
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration |
