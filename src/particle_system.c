@@ -3,8 +3,12 @@
 #include "shader.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <math.h>  // Include for sqrt function
 
 #define MAX_PARTICLES 60000000
+#define NUM_BINS 1024  // Define NUM_BINS here
 
 ParticleSystem* particle_system_create(void) {
     ParticleSystem* ps = malloc(sizeof(ParticleSystem));
@@ -103,8 +107,49 @@ static void init_uniform_locations(ParticleSystem* ps) {
     }
 }
 
+static bool init_binning(ParticleSystem* ps) {
+    const char* binning_files[] = {"shaders/binning.comp"};
+    GLenum binning_types[] = {GL_COMPUTE_SHADER};
+    ps->binningProgram = shader_program_create(binning_files, binning_types, 1);
+    if (!ps->binningProgram) {
+        return false;
+    }
+
+    // Calculate optimal bin size based on screen size and particle count
+    ps->screenWidth = 1920;  // Get actual screen width
+    ps->screenHeight = 1080; // Get actual screen height
+    float particleDensity = ps->numParticles / (float)(ps->screenWidth * ps->screenHeight);
+    ps->optimalBinSize = sqrt(1.0f / particleDensity) * 2.0f;  // Adjust this factor
+    
+    ps->numBinsX = (uint32_t)(ps->screenWidth / ps->optimalBinSize);
+    ps->numBinsY = (uint32_t)(ps->screenHeight / ps->optimalBinSize);
+    uint32_t totalBins = ps->numBinsX * ps->numBinsY;
+
+    // Create buffer for bin counts
+    glGenBuffers(1, &ps->binCountBuffer);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ps->binCountBuffer);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(uint32_t) * totalBins, NULL, GL_DYNAMIC_DRAW);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, ps->binCountBuffer);
+
+    // Cache uniform locations
+    shader_program_use(ps->binningProgram);
+    ps->binSizeLocation = shader_program_get_uniform(ps->binningProgram, "binSize");
+    ps->screenSizeLocation = shader_program_get_uniform(ps->binningProgram, "screenSize");
+    ps->numBinsXLocation = shader_program_get_uniform(ps->binningProgram, "numBinsX");
+    ps->numBinsYLocation = shader_program_get_uniform(ps->binningProgram, "numBinsY");
+
+    return true;
+}
+
 void particle_system_init(ParticleSystem* ps) {
     if (!init_shaders(ps)) {
+        return;
+    }
+
+    // Initialize binning after shaders
+    if (!init_binning(ps)) {
+        shader_program_destroy(ps->computeProgram);
+        shader_program_destroy(ps->renderProgram);
         return;
     }
 
@@ -171,7 +216,7 @@ static void update_uniforms(ParticleSystem* ps) {
 }
 
 void particle_system_update(ParticleSystem* ps) {
-    const int WORK_GROUP_SIZE = 32;
+    const int WORK_GROUP_SIZE = 256;  // Match shader local size
     
     shader_program_use(ps->computeProgram);
     update_uniforms(ps);
@@ -182,11 +227,30 @@ void particle_system_update(ParticleSystem* ps) {
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, ps->velocityMagBuffer);
 
     // Calculate dispatch dimensions
-    int particles_per_group = WORK_GROUP_SIZE * WORK_GROUP_SIZE;
+    int particles_per_group = WORK_GROUP_SIZE;
     int groups = (ps->numParticles + particles_per_group - 1) / particles_per_group;
-    int side = (int)ceil(sqrt(groups));
     
-    glDispatchCompute(side, side, 1);
+    glDispatchCompute(groups, 1, 1);
+    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+    // Clear bin counts before dispatching binning shader
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ps->binCountBuffer);
+    uint32_t zero = 0;
+    glClearBufferData(GL_SHADER_STORAGE_BUFFER, GL_R32UI, GL_RED_INTEGER, GL_UNSIGNED_INT, &zero);
+
+    // Dispatch binning compute shader
+    shader_program_use(ps->binningProgram);
+    glUniform1f(ps->binSizeLocation, ps->optimalBinSize);
+    glUniform2f(ps->screenSizeLocation, (float)ps->screenWidth, (float)ps->screenHeight);
+    glUniform1ui(ps->numBinsXLocation, ps->numBinsX);
+    glUniform1ui(ps->numBinsYLocation, ps->numBinsY);
+
+    // Bind position buffer for binning
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ps->positionBuffer);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, ps->binCountBuffer);
+
+    // Dispatch binning compute shader
+    glDispatchCompute(groups, 1, 1);
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 }
 
@@ -211,6 +275,11 @@ void particle_system_cleanup(ParticleSystem* ps) {
     };
     destroy_particle_buffers(&buffers);
     
+    // Clean up binning resources
+    if (ps->binCountBuffer) {
+        glDeleteBuffers(1, &ps->binCountBuffer);
+    }
+    
     // Then destroy shader programs
     if (ps->computeProgram) {
         shader_program_destroy(ps->computeProgram);
@@ -219,6 +288,10 @@ void particle_system_cleanup(ParticleSystem* ps) {
     if (ps->renderProgram) {
         shader_program_destroy(ps->renderProgram);
         ps->renderProgram = NULL;
+    }
+    if (ps->binningProgram) {
+        shader_program_destroy(ps->binningProgram);
+        ps->binningProgram = NULL;
     }
 }
 
@@ -267,4 +340,32 @@ void particle_system_destroy(ParticleSystem* ps) {
         particle_system_cleanup(ps);
         free(ps);
     }
+}
+
+static void adjust_bin_size(ParticleSystem* ps) {
+    // Adjust bin size based on particle density and frame time
+    static float lastFrameTime = 0.0f;
+    float frameTime = ps->deltaTime * 1000.0f;  // Convert to milliseconds
+    
+    // Adjust bin size if frame time is too high or too low
+    if (frameTime > 16.7f) {  // Below 60 FPS
+        ps->optimalBinSize *= 1.1f;  // Increase bin size to reduce workload
+    } else if (frameTime < 14.0f && ps->optimalBinSize > 2.0f) {  // Well above 60 FPS
+        ps->optimalBinSize *= 0.9f;  // Decrease bin size for better accuracy
+    }
+    
+    // Update bin counts based on new bin size
+    ps->numBinsX = (uint32_t)(ps->screenWidth / ps->optimalBinSize);
+    ps->numBinsY = (uint32_t)(ps->screenHeight / ps->optimalBinSize);
+    
+    lastFrameTime = frameTime;
+}
+
+static void optimize_bin_dimensions(ParticleSystem* ps) {
+    // Round to nearest power of 2 for more efficient indexing
+    ps->numBinsX = 1u << (32 - __builtin_clz((unsigned int)ps->numBinsX - 1));
+    ps->numBinsY = 1u << (32 - __builtin_clz((unsigned int)ps->numBinsY - 1));
+    
+    // Adjust bin size to match new dimensions
+    ps->optimalBinSize = (float)ps->screenWidth / ps->numBinsX;
 }

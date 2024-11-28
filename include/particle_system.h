@@ -24,6 +24,7 @@ typedef struct {
     // Shader programs
     ShaderProgram* computeProgram;
     ShaderProgram* renderProgram;
+    ShaderProgram* binningProgram;
 
     // Physics parameters
     float minDistance;
@@ -51,6 +52,19 @@ typedef struct {
     GLint mouseForceStrengthLocation;
     GLint attractionStrengthLocation;
     GLint timeScaleLocation;
+
+    GLuint binCountBuffer;
+
+    // Binning-specific uniforms and state
+    GLint binSizeLocation;
+    GLint screenSizeLocation;
+    GLint numBinsXLocation;
+    GLint numBinsYLocation;
+    uint32_t numBinsX;
+    uint32_t numBinsY;
+    float optimalBinSize;
+    int screenWidth;
+    int screenHeight;
 } ParticleSystem;
 
 // Core functions

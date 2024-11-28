@@ -1,0 +1,68 @@
+#version 430
+
+layout(local_size_x = 256) in;
+
+layout(std430, binding = 0) buffer ParticlePositions {
+    vec2 positions[];
+};
+
+layout(std430, binding = 1) buffer Bins {
+    uint binCounts[];
+};
+
+uniform float binSize;
+uniform vec2 screenSize;
+uniform uint numBinsX;
+uniform uint numBinsY;
+
+// Increase shared memory usage for better cache utilization
+shared uint localBins[512];  // Doubled size for less bank conflicts
+shared vec2 localPositions[256];  // Cache positions in shared memory
+
+void main() {
+    uint threadIdx = gl_LocalInvocationID.x;
+    uint globalIdx = gl_GlobalInvocationID.x;
+    
+    // Clear local bins (each thread clears 2 bins)
+    localBins[threadIdx] = 0;
+    localBins[threadIdx + 256] = 0;
+    memoryBarrierShared();
+    barrier();
+
+    // Cache position in shared memory
+    if (globalIdx < positions.length()) {
+        localPositions[threadIdx] = positions[globalIdx];
+    }
+    barrier();
+
+    // Process particles
+    if (globalIdx < positions.length()) {
+        vec2 position = localPositions[threadIdx];
+        
+        // Calculate bin index more efficiently using bit operations when possible
+        uvec2 binCoord = uvec2(position / binSize);
+        // Use bit shifts if numBinsX is power of 2
+        uint binIndex = binCoord.x + (binCoord.y << uint(log2(numBinsX)));
+        binIndex = min(binIndex, binCounts.length() - 1);
+        
+        // Use two separate bins to reduce atomic conflicts
+        uint primaryBin = binIndex & 511;  // Map to local storage
+        atomicAdd(localBins[primaryBin], 1);
+    }
+    
+    barrier();
+    memoryBarrierShared();
+    
+    // Merge local counts into global bins (each thread handles 2 bins)
+    if (threadIdx < 256) {
+        uint count1 = localBins[threadIdx];
+        uint count2 = localBins[threadIdx + 256];
+        
+        if (count1 > 0) {
+            atomicAdd(binCounts[threadIdx], count1);
+        }
+        if (count2 > 0) {
+            atomicAdd(binCounts[threadIdx + 256], count2);
+        }
+    }
+} 
