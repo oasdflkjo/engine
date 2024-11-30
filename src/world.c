@@ -27,7 +27,7 @@ void world_init(World* world, GLFWwindow* window) {
     hud_init(&world->hud);
 
     // Initialize delay timer
-    world->initial_delay = 10.0f;  // 3 second delay
+    world->initial_delay = 3.0f;  // 3 second delay
     world->delay_timer = 0.0f;
     world->simulation_started = false;
 }

@@ -43,6 +43,8 @@ typedef struct {
     
     // Sync objects
     GLsync fences[3];     // Sync fences for each buffer
+    
+    GLuint old_compute_index;  // Add this field to store the temp value
 } ParticleSystem;
 
 void particle_system_init(ParticleSystem* ps);

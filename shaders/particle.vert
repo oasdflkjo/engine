@@ -1,18 +1,16 @@
-#version 430 core
-layout (location = 0) in vec2 aPos;
-layout (location = 1) in float aVelocityMag;
+#version 460
 
-uniform mat4 projection;
+// Input from current render buffer
+layout(std430, binding = 0) buffer RenderPositions {
+    vec2 positions[];
+};
+
 uniform mat4 view;
-
-out float velocity_magnitude;
+uniform mat4 projection;
 
 void main() {
-    vec2 position = aPos;
-    float vel_mag = aVelocityMag;
-    
-    gl_Position = projection * view * vec4(position, 0.0, 1.0);
+    // Read position from the current render buffer
+    vec2 pos = positions[gl_VertexID];
+    gl_Position = projection * view * vec4(pos.x, pos.y, 0.0, 1.0);
     gl_PointSize = 2.0;
-    
-    velocity_magnitude = vel_mag;
 }
