@@ -5,7 +5,7 @@
 #include <xmmintrin.h> // SSE
 #include <emmintrin.h> // SSE2
 
-#define MAX_PARTICLES 70000000
+#define MAX_PARTICLES 65000000
 
 static inline uint32_t xorshift32(uint32_t *state)
 {

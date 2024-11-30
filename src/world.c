@@ -25,6 +25,11 @@ void world_init(World* world, GLFWwindow* window) {
 
     // Initialize HUD
     hud_init(&world->hud);
+
+    // Initialize delay timer
+    world->initial_delay = 10.0f;  // 3 second delay
+    world->delay_timer = 0.0f;
+    world->simulation_started = false;
 }
 
 void world_render(World* world, Camera* camera) {
@@ -35,8 +40,18 @@ void world_render(World* world, Camera* camera) {
     
     world->particles.deltaTime = deltaTime;
 
-    // Update particles
-    particle_system_update(&world->particles);
+    // Handle initial delay
+    if (!world->simulation_started) {
+        world->delay_timer += deltaTime;
+        if (world->delay_timer >= world->initial_delay) {
+            world->simulation_started = true;
+        }
+    }
+
+    // Only update particles if the simulation has started
+    if (world->simulation_started) {
+        particle_system_update(&world->particles);
+    }
 
     // Clear buffers
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

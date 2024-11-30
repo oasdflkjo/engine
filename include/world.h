@@ -13,6 +13,9 @@ struct World {
     UI ui;
     HUD hud;
     GLFWwindow* window;
+    float initial_delay;
+    float delay_timer;
+    bool simulation_started;
 };
 
 typedef struct World World;
