@@ -29,7 +29,7 @@ static void init_particle_positions(vec2 *positions, int numParticles)
     // Change scale and offset to center around (0,0)
     // Using -1.0 to 1.0 range first, then scaling to desired size
     __m128 scale = _mm_set1_ps(2.0f / (float)UINT32_MAX); // Scale to -1 to 1 range
-    __m128 world_scale = _mm_set1_ps(20.0f);              // Then scale to world coordinates
+    __m128 world_scale = _mm_set1_ps(100.0f);              // Then scale to world coordinates (-100 to 100)
 
     int aligned_count = (numParticles / 4) * 4;
     for (int i = 0; i < aligned_count; i += 4)
@@ -69,9 +69,9 @@ static void init_particle_positions(vec2 *positions, int numParticles)
         uint32_t rx = xorshift32(&scalar_state);
         uint32_t ry = xorshift32(&scalar_state);
 
-        // Scale to -20 to 20 range centered at origin
-        positions[i][0] = ((rx / (float)UINT32_MAX) * 2.0f - 1.0f) * 20.0f;
-        positions[i][1] = ((ry / (float)UINT32_MAX) * 2.0f - 1.0f) * 20.0f;
+        // Scale to -100 to 100 range centered at origin
+        positions[i][0] = ((rx / (float)UINT32_MAX) * 2.0f - 1.0f) * 200.0f;
+        positions[i][1] = ((ry / (float)UINT32_MAX) * 2.0f - 1.0f) * 200.0f;
     }
 }
 
@@ -220,7 +220,7 @@ void particle_system_update(ParticleSystem *ps)
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, ps->velocityBuffers[ps->nextIndex]);
 
     // Dispatch compute shader
-    int workGroupSize = 256;
+    int workGroupSize = 1024;
     int numWorkGroups = (ps->numParticles + workGroupSize - 1) / workGroupSize;
     glDispatchCompute(numWorkGroups, 1, 1);
 
