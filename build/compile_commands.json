@@ -1,0 +1,494 @@
+[
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -IC:/projects/engine/external/glad/include -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -o CMakeFiles\\glad.dir\\external\\glad\\src\\glad.c.obj -c C:\\projects\\engine\\external\\glad\\src\\glad.c",
+  "file": "C:\\projects\\engine\\external\\glad\\src\\glad.c",
+  "output": "CMakeFiles\\glad.dir\\external\\glad\\src\\glad.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -IC:/projects/engine/external/imgui -IC:/projects/engine/external/imgui/backends -IC:/projects/engine/external/glfw/include -O0 -g -Xclang -gcodeview -std=gnu++14 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -o CMakeFiles\\imgui.dir\\external\\imgui\\imgui.cpp.obj -c C:\\projects\\engine\\external\\imgui\\imgui.cpp",
+  "file": "C:\\projects\\engine\\external\\imgui\\imgui.cpp",
+  "output": "CMakeFiles\\imgui.dir\\external\\imgui\\imgui.cpp.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -IC:/projects/engine/external/imgui -IC:/projects/engine/external/imgui/backends -IC:/projects/engine/external/glfw/include -O0 -g -Xclang -gcodeview -std=gnu++14 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -o CMakeFiles\\imgui.dir\\external\\imgui\\imgui_demo.cpp.obj -c C:\\projects\\engine\\external\\imgui\\imgui_demo.cpp",
+  "file": "C:\\projects\\engine\\external\\imgui\\imgui_demo.cpp",
+  "output": "CMakeFiles\\imgui.dir\\external\\imgui\\imgui_demo.cpp.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -IC:/projects/engine/external/imgui -IC:/projects/engine/external/imgui/backends -IC:/projects/engine/external/glfw/include -O0 -g -Xclang -gcodeview -std=gnu++14 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -o CMakeFiles\\imgui.dir\\external\\imgui\\imgui_draw.cpp.obj -c C:\\projects\\engine\\external\\imgui\\imgui_draw.cpp",
+  "file": "C:\\projects\\engine\\external\\imgui\\imgui_draw.cpp",
+  "output": "CMakeFiles\\imgui.dir\\external\\imgui\\imgui_draw.cpp.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -IC:/projects/engine/external/imgui -IC:/projects/engine/external/imgui/backends -IC:/projects/engine/external/glfw/include -O0 -g -Xclang -gcodeview -std=gnu++14 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -o CMakeFiles\\imgui.dir\\external\\imgui\\imgui_tables.cpp.obj -c C:\\projects\\engine\\external\\imgui\\imgui_tables.cpp",
+  "file": "C:\\projects\\engine\\external\\imgui\\imgui_tables.cpp",
+  "output": "CMakeFiles\\imgui.dir\\external\\imgui\\imgui_tables.cpp.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -IC:/projects/engine/external/imgui -IC:/projects/engine/external/imgui/backends -IC:/projects/engine/external/glfw/include -O0 -g -Xclang -gcodeview -std=gnu++14 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -o CMakeFiles\\imgui.dir\\external\\imgui\\imgui_widgets.cpp.obj -c C:\\projects\\engine\\external\\imgui\\imgui_widgets.cpp",
+  "file": "C:\\projects\\engine\\external\\imgui\\imgui_widgets.cpp",
+  "output": "CMakeFiles\\imgui.dir\\external\\imgui\\imgui_widgets.cpp.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -IC:/projects/engine/external/imgui -IC:/projects/engine/external/imgui/backends -IC:/projects/engine/external/glfw/include -O0 -g -Xclang -gcodeview -std=gnu++14 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -o CMakeFiles\\imgui.dir\\external\\imgui\\backends\\imgui_impl_glfw.cpp.obj -c C:\\projects\\engine\\external\\imgui\\backends\\imgui_impl_glfw.cpp",
+  "file": "C:\\projects\\engine\\external\\imgui\\backends\\imgui_impl_glfw.cpp",
+  "output": "CMakeFiles\\imgui.dir\\external\\imgui\\backends\\imgui_impl_glfw.cpp.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -IC:/projects/engine/external/imgui -IC:/projects/engine/external/imgui/backends -IC:/projects/engine/external/glfw/include -O0 -g -Xclang -gcodeview -std=gnu++14 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -o CMakeFiles\\imgui.dir\\external\\imgui\\backends\\imgui_impl_opengl3.cpp.obj -c C:\\projects\\engine\\external\\imgui\\backends\\imgui_impl_opengl3.cpp",
+  "file": "C:\\projects\\engine\\external\\imgui\\backends\\imgui_impl_opengl3.cpp",
+  "output": "CMakeFiles\\imgui.dir\\external\\imgui\\backends\\imgui_impl_opengl3.cpp.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -IC:/projects/engine/include -IC:/projects/engine/external/imgui -IC:/projects/engine/external/imgui/backends -IC:/projects/engine/external/glfw/include -IC:/projects/engine/external/glad/include -IC:/projects/engine/external/cglm/include -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -o CMakeFiles\\main.dir\\src\\buffer_manager.c.obj -c C:\\projects\\engine\\src\\buffer_manager.c",
+  "file": "C:\\projects\\engine\\src\\buffer_manager.c",
+  "output": "CMakeFiles\\main.dir\\src\\buffer_manager.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -IC:/projects/engine/include -IC:/projects/engine/external/imgui -IC:/projects/engine/external/imgui/backends -IC:/projects/engine/external/glfw/include -IC:/projects/engine/external/glad/include -IC:/projects/engine/external/cglm/include -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -o CMakeFiles\\main.dir\\src\\camera.c.obj -c C:\\projects\\engine\\src\\camera.c",
+  "file": "C:\\projects\\engine\\src\\camera.c",
+  "output": "CMakeFiles\\main.dir\\src\\camera.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -IC:/projects/engine/include -IC:/projects/engine/external/imgui -IC:/projects/engine/external/imgui/backends -IC:/projects/engine/external/glfw/include -IC:/projects/engine/external/glad/include -IC:/projects/engine/external/cglm/include -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -o CMakeFiles\\main.dir\\src\\grid.c.obj -c C:\\projects\\engine\\src\\grid.c",
+  "file": "C:\\projects\\engine\\src\\grid.c",
+  "output": "CMakeFiles\\main.dir\\src\\grid.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -IC:/projects/engine/include -IC:/projects/engine/external/imgui -IC:/projects/engine/external/imgui/backends -IC:/projects/engine/external/glfw/include -IC:/projects/engine/external/glad/include -IC:/projects/engine/external/cglm/include -O0 -g -Xclang -gcodeview -std=gnu++14 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -o CMakeFiles\\main.dir\\src\\hud.cpp.obj -c C:\\projects\\engine\\src\\hud.cpp",
+  "file": "C:\\projects\\engine\\src\\hud.cpp",
+  "output": "CMakeFiles\\main.dir\\src\\hud.cpp.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -IC:/projects/engine/include -IC:/projects/engine/external/imgui -IC:/projects/engine/external/imgui/backends -IC:/projects/engine/external/glfw/include -IC:/projects/engine/external/glad/include -IC:/projects/engine/external/cglm/include -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -o CMakeFiles\\main.dir\\src\\main.c.obj -c C:\\projects\\engine\\src\\main.c",
+  "file": "C:\\projects\\engine\\src\\main.c",
+  "output": "CMakeFiles\\main.dir\\src\\main.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -IC:/projects/engine/include -IC:/projects/engine/external/imgui -IC:/projects/engine/external/imgui/backends -IC:/projects/engine/external/glfw/include -IC:/projects/engine/external/glad/include -IC:/projects/engine/external/cglm/include -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -o CMakeFiles\\main.dir\\src\\particle_system.c.obj -c C:\\projects\\engine\\src\\particle_system.c",
+  "file": "C:\\projects\\engine\\src\\particle_system.c",
+  "output": "CMakeFiles\\main.dir\\src\\particle_system.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -IC:/projects/engine/include -IC:/projects/engine/external/imgui -IC:/projects/engine/external/imgui/backends -IC:/projects/engine/external/glfw/include -IC:/projects/engine/external/glad/include -IC:/projects/engine/external/cglm/include -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -o CMakeFiles\\main.dir\\src\\shader.c.obj -c C:\\projects\\engine\\src\\shader.c",
+  "file": "C:\\projects\\engine\\src\\shader.c",
+  "output": "CMakeFiles\\main.dir\\src\\shader.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -IC:/projects/engine/include -IC:/projects/engine/external/imgui -IC:/projects/engine/external/imgui/backends -IC:/projects/engine/external/glfw/include -IC:/projects/engine/external/glad/include -IC:/projects/engine/external/cglm/include -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -o CMakeFiles\\main.dir\\src\\shader_program.c.obj -c C:\\projects\\engine\\src\\shader_program.c",
+  "file": "C:\\projects\\engine\\src\\shader_program.c",
+  "output": "CMakeFiles\\main.dir\\src\\shader_program.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -IC:/projects/engine/include -IC:/projects/engine/external/imgui -IC:/projects/engine/external/imgui/backends -IC:/projects/engine/external/glfw/include -IC:/projects/engine/external/glad/include -IC:/projects/engine/external/cglm/include -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -o CMakeFiles\\main.dir\\src\\world.c.obj -c C:\\projects\\engine\\src\\world.c",
+  "file": "C:\\projects\\engine\\src\\world.c",
+  "output": "CMakeFiles\\main.dir\\src\\world.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_GLFW_WIN32 -D_UNICODE -IC:/projects/engine/external/glfw/include -IC:/projects/engine/external/glfw/src -IC:/projects/engine/build/external/glfw/src -O0 -g -Xclang -gcodeview -std=c99 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\glfw\\src\\CMakeFiles\\glfw.dir\\context.c.obj -c C:\\projects\\engine\\external\\glfw\\src\\context.c",
+  "file": "C:\\projects\\engine\\external\\glfw\\src\\context.c",
+  "output": "external\\glfw\\src\\CMakeFiles\\glfw.dir\\context.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_GLFW_WIN32 -D_UNICODE -IC:/projects/engine/external/glfw/include -IC:/projects/engine/external/glfw/src -IC:/projects/engine/build/external/glfw/src -O0 -g -Xclang -gcodeview -std=c99 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\glfw\\src\\CMakeFiles\\glfw.dir\\init.c.obj -c C:\\projects\\engine\\external\\glfw\\src\\init.c",
+  "file": "C:\\projects\\engine\\external\\glfw\\src\\init.c",
+  "output": "external\\glfw\\src\\CMakeFiles\\glfw.dir\\init.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_GLFW_WIN32 -D_UNICODE -IC:/projects/engine/external/glfw/include -IC:/projects/engine/external/glfw/src -IC:/projects/engine/build/external/glfw/src -O0 -g -Xclang -gcodeview -std=c99 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\glfw\\src\\CMakeFiles\\glfw.dir\\input.c.obj -c C:\\projects\\engine\\external\\glfw\\src\\input.c",
+  "file": "C:\\projects\\engine\\external\\glfw\\src\\input.c",
+  "output": "external\\glfw\\src\\CMakeFiles\\glfw.dir\\input.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_GLFW_WIN32 -D_UNICODE -IC:/projects/engine/external/glfw/include -IC:/projects/engine/external/glfw/src -IC:/projects/engine/build/external/glfw/src -O0 -g -Xclang -gcodeview -std=c99 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\glfw\\src\\CMakeFiles\\glfw.dir\\monitor.c.obj -c C:\\projects\\engine\\external\\glfw\\src\\monitor.c",
+  "file": "C:\\projects\\engine\\external\\glfw\\src\\monitor.c",
+  "output": "external\\glfw\\src\\CMakeFiles\\glfw.dir\\monitor.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_GLFW_WIN32 -D_UNICODE -IC:/projects/engine/external/glfw/include -IC:/projects/engine/external/glfw/src -IC:/projects/engine/build/external/glfw/src -O0 -g -Xclang -gcodeview -std=c99 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\glfw\\src\\CMakeFiles\\glfw.dir\\platform.c.obj -c C:\\projects\\engine\\external\\glfw\\src\\platform.c",
+  "file": "C:\\projects\\engine\\external\\glfw\\src\\platform.c",
+  "output": "external\\glfw\\src\\CMakeFiles\\glfw.dir\\platform.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_GLFW_WIN32 -D_UNICODE -IC:/projects/engine/external/glfw/include -IC:/projects/engine/external/glfw/src -IC:/projects/engine/build/external/glfw/src -O0 -g -Xclang -gcodeview -std=c99 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\glfw\\src\\CMakeFiles\\glfw.dir\\vulkan.c.obj -c C:\\projects\\engine\\external\\glfw\\src\\vulkan.c",
+  "file": "C:\\projects\\engine\\external\\glfw\\src\\vulkan.c",
+  "output": "external\\glfw\\src\\CMakeFiles\\glfw.dir\\vulkan.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_GLFW_WIN32 -D_UNICODE -IC:/projects/engine/external/glfw/include -IC:/projects/engine/external/glfw/src -IC:/projects/engine/build/external/glfw/src -O0 -g -Xclang -gcodeview -std=c99 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\glfw\\src\\CMakeFiles\\glfw.dir\\window.c.obj -c C:\\projects\\engine\\external\\glfw\\src\\window.c",
+  "file": "C:\\projects\\engine\\external\\glfw\\src\\window.c",
+  "output": "external\\glfw\\src\\CMakeFiles\\glfw.dir\\window.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_GLFW_WIN32 -D_UNICODE -IC:/projects/engine/external/glfw/include -IC:/projects/engine/external/glfw/src -IC:/projects/engine/build/external/glfw/src -O0 -g -Xclang -gcodeview -std=c99 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\glfw\\src\\CMakeFiles\\glfw.dir\\egl_context.c.obj -c C:\\projects\\engine\\external\\glfw\\src\\egl_context.c",
+  "file": "C:\\projects\\engine\\external\\glfw\\src\\egl_context.c",
+  "output": "external\\glfw\\src\\CMakeFiles\\glfw.dir\\egl_context.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_GLFW_WIN32 -D_UNICODE -IC:/projects/engine/external/glfw/include -IC:/projects/engine/external/glfw/src -IC:/projects/engine/build/external/glfw/src -O0 -g -Xclang -gcodeview -std=c99 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\glfw\\src\\CMakeFiles\\glfw.dir\\osmesa_context.c.obj -c C:\\projects\\engine\\external\\glfw\\src\\osmesa_context.c",
+  "file": "C:\\projects\\engine\\external\\glfw\\src\\osmesa_context.c",
+  "output": "external\\glfw\\src\\CMakeFiles\\glfw.dir\\osmesa_context.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_GLFW_WIN32 -D_UNICODE -IC:/projects/engine/external/glfw/include -IC:/projects/engine/external/glfw/src -IC:/projects/engine/build/external/glfw/src -O0 -g -Xclang -gcodeview -std=c99 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\glfw\\src\\CMakeFiles\\glfw.dir\\null_init.c.obj -c C:\\projects\\engine\\external\\glfw\\src\\null_init.c",
+  "file": "C:\\projects\\engine\\external\\glfw\\src\\null_init.c",
+  "output": "external\\glfw\\src\\CMakeFiles\\glfw.dir\\null_init.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_GLFW_WIN32 -D_UNICODE -IC:/projects/engine/external/glfw/include -IC:/projects/engine/external/glfw/src -IC:/projects/engine/build/external/glfw/src -O0 -g -Xclang -gcodeview -std=c99 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\glfw\\src\\CMakeFiles\\glfw.dir\\null_monitor.c.obj -c C:\\projects\\engine\\external\\glfw\\src\\null_monitor.c",
+  "file": "C:\\projects\\engine\\external\\glfw\\src\\null_monitor.c",
+  "output": "external\\glfw\\src\\CMakeFiles\\glfw.dir\\null_monitor.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_GLFW_WIN32 -D_UNICODE -IC:/projects/engine/external/glfw/include -IC:/projects/engine/external/glfw/src -IC:/projects/engine/build/external/glfw/src -O0 -g -Xclang -gcodeview -std=c99 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\glfw\\src\\CMakeFiles\\glfw.dir\\null_window.c.obj -c C:\\projects\\engine\\external\\glfw\\src\\null_window.c",
+  "file": "C:\\projects\\engine\\external\\glfw\\src\\null_window.c",
+  "output": "external\\glfw\\src\\CMakeFiles\\glfw.dir\\null_window.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_GLFW_WIN32 -D_UNICODE -IC:/projects/engine/external/glfw/include -IC:/projects/engine/external/glfw/src -IC:/projects/engine/build/external/glfw/src -O0 -g -Xclang -gcodeview -std=c99 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\glfw\\src\\CMakeFiles\\glfw.dir\\null_joystick.c.obj -c C:\\projects\\engine\\external\\glfw\\src\\null_joystick.c",
+  "file": "C:\\projects\\engine\\external\\glfw\\src\\null_joystick.c",
+  "output": "external\\glfw\\src\\CMakeFiles\\glfw.dir\\null_joystick.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_GLFW_WIN32 -D_UNICODE -IC:/projects/engine/external/glfw/include -IC:/projects/engine/external/glfw/src -IC:/projects/engine/build/external/glfw/src -O0 -g -Xclang -gcodeview -std=c99 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\glfw\\src\\CMakeFiles\\glfw.dir\\win32_module.c.obj -c C:\\projects\\engine\\external\\glfw\\src\\win32_module.c",
+  "file": "C:\\projects\\engine\\external\\glfw\\src\\win32_module.c",
+  "output": "external\\glfw\\src\\CMakeFiles\\glfw.dir\\win32_module.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_GLFW_WIN32 -D_UNICODE -IC:/projects/engine/external/glfw/include -IC:/projects/engine/external/glfw/src -IC:/projects/engine/build/external/glfw/src -O0 -g -Xclang -gcodeview -std=c99 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\glfw\\src\\CMakeFiles\\glfw.dir\\win32_time.c.obj -c C:\\projects\\engine\\external\\glfw\\src\\win32_time.c",
+  "file": "C:\\projects\\engine\\external\\glfw\\src\\win32_time.c",
+  "output": "external\\glfw\\src\\CMakeFiles\\glfw.dir\\win32_time.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_GLFW_WIN32 -D_UNICODE -IC:/projects/engine/external/glfw/include -IC:/projects/engine/external/glfw/src -IC:/projects/engine/build/external/glfw/src -O0 -g -Xclang -gcodeview -std=c99 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\glfw\\src\\CMakeFiles\\glfw.dir\\win32_thread.c.obj -c C:\\projects\\engine\\external\\glfw\\src\\win32_thread.c",
+  "file": "C:\\projects\\engine\\external\\glfw\\src\\win32_thread.c",
+  "output": "external\\glfw\\src\\CMakeFiles\\glfw.dir\\win32_thread.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_GLFW_WIN32 -D_UNICODE -IC:/projects/engine/external/glfw/include -IC:/projects/engine/external/glfw/src -IC:/projects/engine/build/external/glfw/src -O0 -g -Xclang -gcodeview -std=c99 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\glfw\\src\\CMakeFiles\\glfw.dir\\win32_init.c.obj -c C:\\projects\\engine\\external\\glfw\\src\\win32_init.c",
+  "file": "C:\\projects\\engine\\external\\glfw\\src\\win32_init.c",
+  "output": "external\\glfw\\src\\CMakeFiles\\glfw.dir\\win32_init.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_GLFW_WIN32 -D_UNICODE -IC:/projects/engine/external/glfw/include -IC:/projects/engine/external/glfw/src -IC:/projects/engine/build/external/glfw/src -O0 -g -Xclang -gcodeview -std=c99 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\glfw\\src\\CMakeFiles\\glfw.dir\\win32_joystick.c.obj -c C:\\projects\\engine\\external\\glfw\\src\\win32_joystick.c",
+  "file": "C:\\projects\\engine\\external\\glfw\\src\\win32_joystick.c",
+  "output": "external\\glfw\\src\\CMakeFiles\\glfw.dir\\win32_joystick.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_GLFW_WIN32 -D_UNICODE -IC:/projects/engine/external/glfw/include -IC:/projects/engine/external/glfw/src -IC:/projects/engine/build/external/glfw/src -O0 -g -Xclang -gcodeview -std=c99 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\glfw\\src\\CMakeFiles\\glfw.dir\\win32_monitor.c.obj -c C:\\projects\\engine\\external\\glfw\\src\\win32_monitor.c",
+  "file": "C:\\projects\\engine\\external\\glfw\\src\\win32_monitor.c",
+  "output": "external\\glfw\\src\\CMakeFiles\\glfw.dir\\win32_monitor.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_GLFW_WIN32 -D_UNICODE -IC:/projects/engine/external/glfw/include -IC:/projects/engine/external/glfw/src -IC:/projects/engine/build/external/glfw/src -O0 -g -Xclang -gcodeview -std=c99 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\glfw\\src\\CMakeFiles\\glfw.dir\\win32_window.c.obj -c C:\\projects\\engine\\external\\glfw\\src\\win32_window.c",
+  "file": "C:\\projects\\engine\\external\\glfw\\src\\win32_window.c",
+  "output": "external\\glfw\\src\\CMakeFiles\\glfw.dir\\win32_window.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_GLFW_WIN32 -D_UNICODE -IC:/projects/engine/external/glfw/include -IC:/projects/engine/external/glfw/src -IC:/projects/engine/build/external/glfw/src -O0 -g -Xclang -gcodeview -std=c99 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\glfw\\src\\CMakeFiles\\glfw.dir\\wgl_context.c.obj -c C:\\projects\\engine\\external\\glfw\\src\\wgl_context.c",
+  "file": "C:\\projects\\engine\\external\\glfw\\src\\wgl_context.c",
+  "output": "external\\glfw\\src\\CMakeFiles\\glfw.dir\\wgl_context.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DCGLM_EXPORTS -Dcglm_EXPORTS -IC:/projects/engine/external/cglm/include -IC:/projects/engine/external/cglm/src -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\cglm\\CMakeFiles\\cglm.dir\\src\\euler.c.obj -c C:\\projects\\engine\\external\\cglm\\src\\euler.c",
+  "file": "C:\\projects\\engine\\external\\cglm\\src\\euler.c",
+  "output": "external\\cglm\\CMakeFiles\\cglm.dir\\src\\euler.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DCGLM_EXPORTS -Dcglm_EXPORTS -IC:/projects/engine/external/cglm/include -IC:/projects/engine/external/cglm/src -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\cglm\\CMakeFiles\\cglm.dir\\src\\affine.c.obj -c C:\\projects\\engine\\external\\cglm\\src\\affine.c",
+  "file": "C:\\projects\\engine\\external\\cglm\\src\\affine.c",
+  "output": "external\\cglm\\CMakeFiles\\cglm.dir\\src\\affine.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DCGLM_EXPORTS -Dcglm_EXPORTS -IC:/projects/engine/external/cglm/include -IC:/projects/engine/external/cglm/src -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\cglm\\CMakeFiles\\cglm.dir\\src\\io.c.obj -c C:\\projects\\engine\\external\\cglm\\src\\io.c",
+  "file": "C:\\projects\\engine\\external\\cglm\\src\\io.c",
+  "output": "external\\cglm\\CMakeFiles\\cglm.dir\\src\\io.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DCGLM_EXPORTS -Dcglm_EXPORTS -IC:/projects/engine/external/cglm/include -IC:/projects/engine/external/cglm/src -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\cglm\\CMakeFiles\\cglm.dir\\src\\quat.c.obj -c C:\\projects\\engine\\external\\cglm\\src\\quat.c",
+  "file": "C:\\projects\\engine\\external\\cglm\\src\\quat.c",
+  "output": "external\\cglm\\CMakeFiles\\cglm.dir\\src\\quat.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DCGLM_EXPORTS -Dcglm_EXPORTS -IC:/projects/engine/external/cglm/include -IC:/projects/engine/external/cglm/src -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\cglm\\CMakeFiles\\cglm.dir\\src\\cam.c.obj -c C:\\projects\\engine\\external\\cglm\\src\\cam.c",
+  "file": "C:\\projects\\engine\\external\\cglm\\src\\cam.c",
+  "output": "external\\cglm\\CMakeFiles\\cglm.dir\\src\\cam.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DCGLM_EXPORTS -Dcglm_EXPORTS -IC:/projects/engine/external/cglm/include -IC:/projects/engine/external/cglm/src -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\cglm\\CMakeFiles\\cglm.dir\\src\\vec2.c.obj -c C:\\projects\\engine\\external\\cglm\\src\\vec2.c",
+  "file": "C:\\projects\\engine\\external\\cglm\\src\\vec2.c",
+  "output": "external\\cglm\\CMakeFiles\\cglm.dir\\src\\vec2.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DCGLM_EXPORTS -Dcglm_EXPORTS -IC:/projects/engine/external/cglm/include -IC:/projects/engine/external/cglm/src -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\cglm\\CMakeFiles\\cglm.dir\\src\\ivec2.c.obj -c C:\\projects\\engine\\external\\cglm\\src\\ivec2.c",
+  "file": "C:\\projects\\engine\\external\\cglm\\src\\ivec2.c",
+  "output": "external\\cglm\\CMakeFiles\\cglm.dir\\src\\ivec2.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DCGLM_EXPORTS -Dcglm_EXPORTS -IC:/projects/engine/external/cglm/include -IC:/projects/engine/external/cglm/src -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\cglm\\CMakeFiles\\cglm.dir\\src\\vec3.c.obj -c C:\\projects\\engine\\external\\cglm\\src\\vec3.c",
+  "file": "C:\\projects\\engine\\external\\cglm\\src\\vec3.c",
+  "output": "external\\cglm\\CMakeFiles\\cglm.dir\\src\\vec3.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DCGLM_EXPORTS -Dcglm_EXPORTS -IC:/projects/engine/external/cglm/include -IC:/projects/engine/external/cglm/src -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\cglm\\CMakeFiles\\cglm.dir\\src\\ivec3.c.obj -c C:\\projects\\engine\\external\\cglm\\src\\ivec3.c",
+  "file": "C:\\projects\\engine\\external\\cglm\\src\\ivec3.c",
+  "output": "external\\cglm\\CMakeFiles\\cglm.dir\\src\\ivec3.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DCGLM_EXPORTS -Dcglm_EXPORTS -IC:/projects/engine/external/cglm/include -IC:/projects/engine/external/cglm/src -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\cglm\\CMakeFiles\\cglm.dir\\src\\vec4.c.obj -c C:\\projects\\engine\\external\\cglm\\src\\vec4.c",
+  "file": "C:\\projects\\engine\\external\\cglm\\src\\vec4.c",
+  "output": "external\\cglm\\CMakeFiles\\cglm.dir\\src\\vec4.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DCGLM_EXPORTS -Dcglm_EXPORTS -IC:/projects/engine/external/cglm/include -IC:/projects/engine/external/cglm/src -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\cglm\\CMakeFiles\\cglm.dir\\src\\ivec4.c.obj -c C:\\projects\\engine\\external\\cglm\\src\\ivec4.c",
+  "file": "C:\\projects\\engine\\external\\cglm\\src\\ivec4.c",
+  "output": "external\\cglm\\CMakeFiles\\cglm.dir\\src\\ivec4.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DCGLM_EXPORTS -Dcglm_EXPORTS -IC:/projects/engine/external/cglm/include -IC:/projects/engine/external/cglm/src -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\cglm\\CMakeFiles\\cglm.dir\\src\\mat2.c.obj -c C:\\projects\\engine\\external\\cglm\\src\\mat2.c",
+  "file": "C:\\projects\\engine\\external\\cglm\\src\\mat2.c",
+  "output": "external\\cglm\\CMakeFiles\\cglm.dir\\src\\mat2.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DCGLM_EXPORTS -Dcglm_EXPORTS -IC:/projects/engine/external/cglm/include -IC:/projects/engine/external/cglm/src -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\cglm\\CMakeFiles\\cglm.dir\\src\\mat2x3.c.obj -c C:\\projects\\engine\\external\\cglm\\src\\mat2x3.c",
+  "file": "C:\\projects\\engine\\external\\cglm\\src\\mat2x3.c",
+  "output": "external\\cglm\\CMakeFiles\\cglm.dir\\src\\mat2x3.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DCGLM_EXPORTS -Dcglm_EXPORTS -IC:/projects/engine/external/cglm/include -IC:/projects/engine/external/cglm/src -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\cglm\\CMakeFiles\\cglm.dir\\src\\mat2x4.c.obj -c C:\\projects\\engine\\external\\cglm\\src\\mat2x4.c",
+  "file": "C:\\projects\\engine\\external\\cglm\\src\\mat2x4.c",
+  "output": "external\\cglm\\CMakeFiles\\cglm.dir\\src\\mat2x4.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DCGLM_EXPORTS -Dcglm_EXPORTS -IC:/projects/engine/external/cglm/include -IC:/projects/engine/external/cglm/src -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\cglm\\CMakeFiles\\cglm.dir\\src\\mat3.c.obj -c C:\\projects\\engine\\external\\cglm\\src\\mat3.c",
+  "file": "C:\\projects\\engine\\external\\cglm\\src\\mat3.c",
+  "output": "external\\cglm\\CMakeFiles\\cglm.dir\\src\\mat3.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DCGLM_EXPORTS -Dcglm_EXPORTS -IC:/projects/engine/external/cglm/include -IC:/projects/engine/external/cglm/src -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\cglm\\CMakeFiles\\cglm.dir\\src\\mat3x2.c.obj -c C:\\projects\\engine\\external\\cglm\\src\\mat3x2.c",
+  "file": "C:\\projects\\engine\\external\\cglm\\src\\mat3x2.c",
+  "output": "external\\cglm\\CMakeFiles\\cglm.dir\\src\\mat3x2.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DCGLM_EXPORTS -Dcglm_EXPORTS -IC:/projects/engine/external/cglm/include -IC:/projects/engine/external/cglm/src -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\cglm\\CMakeFiles\\cglm.dir\\src\\mat3x4.c.obj -c C:\\projects\\engine\\external\\cglm\\src\\mat3x4.c",
+  "file": "C:\\projects\\engine\\external\\cglm\\src\\mat3x4.c",
+  "output": "external\\cglm\\CMakeFiles\\cglm.dir\\src\\mat3x4.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DCGLM_EXPORTS -Dcglm_EXPORTS -IC:/projects/engine/external/cglm/include -IC:/projects/engine/external/cglm/src -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\cglm\\CMakeFiles\\cglm.dir\\src\\mat4.c.obj -c C:\\projects\\engine\\external\\cglm\\src\\mat4.c",
+  "file": "C:\\projects\\engine\\external\\cglm\\src\\mat4.c",
+  "output": "external\\cglm\\CMakeFiles\\cglm.dir\\src\\mat4.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DCGLM_EXPORTS -Dcglm_EXPORTS -IC:/projects/engine/external/cglm/include -IC:/projects/engine/external/cglm/src -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\cglm\\CMakeFiles\\cglm.dir\\src\\mat4x2.c.obj -c C:\\projects\\engine\\external\\cglm\\src\\mat4x2.c",
+  "file": "C:\\projects\\engine\\external\\cglm\\src\\mat4x2.c",
+  "output": "external\\cglm\\CMakeFiles\\cglm.dir\\src\\mat4x2.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DCGLM_EXPORTS -Dcglm_EXPORTS -IC:/projects/engine/external/cglm/include -IC:/projects/engine/external/cglm/src -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\cglm\\CMakeFiles\\cglm.dir\\src\\mat4x3.c.obj -c C:\\projects\\engine\\external\\cglm\\src\\mat4x3.c",
+  "file": "C:\\projects\\engine\\external\\cglm\\src\\mat4x3.c",
+  "output": "external\\cglm\\CMakeFiles\\cglm.dir\\src\\mat4x3.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DCGLM_EXPORTS -Dcglm_EXPORTS -IC:/projects/engine/external/cglm/include -IC:/projects/engine/external/cglm/src -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\cglm\\CMakeFiles\\cglm.dir\\src\\plane.c.obj -c C:\\projects\\engine\\external\\cglm\\src\\plane.c",
+  "file": "C:\\projects\\engine\\external\\cglm\\src\\plane.c",
+  "output": "external\\cglm\\CMakeFiles\\cglm.dir\\src\\plane.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DCGLM_EXPORTS -Dcglm_EXPORTS -IC:/projects/engine/external/cglm/include -IC:/projects/engine/external/cglm/src -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\cglm\\CMakeFiles\\cglm.dir\\src\\frustum.c.obj -c C:\\projects\\engine\\external\\cglm\\src\\frustum.c",
+  "file": "C:\\projects\\engine\\external\\cglm\\src\\frustum.c",
+  "output": "external\\cglm\\CMakeFiles\\cglm.dir\\src\\frustum.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DCGLM_EXPORTS -Dcglm_EXPORTS -IC:/projects/engine/external/cglm/include -IC:/projects/engine/external/cglm/src -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\cglm\\CMakeFiles\\cglm.dir\\src\\box.c.obj -c C:\\projects\\engine\\external\\cglm\\src\\box.c",
+  "file": "C:\\projects\\engine\\external\\cglm\\src\\box.c",
+  "output": "external\\cglm\\CMakeFiles\\cglm.dir\\src\\box.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DCGLM_EXPORTS -Dcglm_EXPORTS -IC:/projects/engine/external/cglm/include -IC:/projects/engine/external/cglm/src -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\cglm\\CMakeFiles\\cglm.dir\\src\\project.c.obj -c C:\\projects\\engine\\external\\cglm\\src\\project.c",
+  "file": "C:\\projects\\engine\\external\\cglm\\src\\project.c",
+  "output": "external\\cglm\\CMakeFiles\\cglm.dir\\src\\project.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DCGLM_EXPORTS -Dcglm_EXPORTS -IC:/projects/engine/external/cglm/include -IC:/projects/engine/external/cglm/src -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\cglm\\CMakeFiles\\cglm.dir\\src\\sphere.c.obj -c C:\\projects\\engine\\external\\cglm\\src\\sphere.c",
+  "file": "C:\\projects\\engine\\external\\cglm\\src\\sphere.c",
+  "output": "external\\cglm\\CMakeFiles\\cglm.dir\\src\\sphere.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DCGLM_EXPORTS -Dcglm_EXPORTS -IC:/projects/engine/external/cglm/include -IC:/projects/engine/external/cglm/src -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\cglm\\CMakeFiles\\cglm.dir\\src\\ease.c.obj -c C:\\projects\\engine\\external\\cglm\\src\\ease.c",
+  "file": "C:\\projects\\engine\\external\\cglm\\src\\ease.c",
+  "output": "external\\cglm\\CMakeFiles\\cglm.dir\\src\\ease.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DCGLM_EXPORTS -Dcglm_EXPORTS -IC:/projects/engine/external/cglm/include -IC:/projects/engine/external/cglm/src -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\cglm\\CMakeFiles\\cglm.dir\\src\\curve.c.obj -c C:\\projects\\engine\\external\\cglm\\src\\curve.c",
+  "file": "C:\\projects\\engine\\external\\cglm\\src\\curve.c",
+  "output": "external\\cglm\\CMakeFiles\\cglm.dir\\src\\curve.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DCGLM_EXPORTS -Dcglm_EXPORTS -IC:/projects/engine/external/cglm/include -IC:/projects/engine/external/cglm/src -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\cglm\\CMakeFiles\\cglm.dir\\src\\bezier.c.obj -c C:\\projects\\engine\\external\\cglm\\src\\bezier.c",
+  "file": "C:\\projects\\engine\\external\\cglm\\src\\bezier.c",
+  "output": "external\\cglm\\CMakeFiles\\cglm.dir\\src\\bezier.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DCGLM_EXPORTS -Dcglm_EXPORTS -IC:/projects/engine/external/cglm/include -IC:/projects/engine/external/cglm/src -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\cglm\\CMakeFiles\\cglm.dir\\src\\ray.c.obj -c C:\\projects\\engine\\external\\cglm\\src\\ray.c",
+  "file": "C:\\projects\\engine\\external\\cglm\\src\\ray.c",
+  "output": "external\\cglm\\CMakeFiles\\cglm.dir\\src\\ray.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DCGLM_EXPORTS -Dcglm_EXPORTS -IC:/projects/engine/external/cglm/include -IC:/projects/engine/external/cglm/src -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\cglm\\CMakeFiles\\cglm.dir\\src\\affine2d.c.obj -c C:\\projects\\engine\\external\\cglm\\src\\affine2d.c",
+  "file": "C:\\projects\\engine\\external\\cglm\\src\\affine2d.c",
+  "output": "external\\cglm\\CMakeFiles\\cglm.dir\\src\\affine2d.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DCGLM_EXPORTS -Dcglm_EXPORTS -IC:/projects/engine/external/cglm/include -IC:/projects/engine/external/cglm/src -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\cglm\\CMakeFiles\\cglm.dir\\src\\clipspace\\ortho_lh_no.c.obj -c C:\\projects\\engine\\external\\cglm\\src\\clipspace\\ortho_lh_no.c",
+  "file": "C:\\projects\\engine\\external\\cglm\\src\\clipspace\\ortho_lh_no.c",
+  "output": "external\\cglm\\CMakeFiles\\cglm.dir\\src\\clipspace\\ortho_lh_no.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DCGLM_EXPORTS -Dcglm_EXPORTS -IC:/projects/engine/external/cglm/include -IC:/projects/engine/external/cglm/src -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\cglm\\CMakeFiles\\cglm.dir\\src\\clipspace\\ortho_lh_zo.c.obj -c C:\\projects\\engine\\external\\cglm\\src\\clipspace\\ortho_lh_zo.c",
+  "file": "C:\\projects\\engine\\external\\cglm\\src\\clipspace\\ortho_lh_zo.c",
+  "output": "external\\cglm\\CMakeFiles\\cglm.dir\\src\\clipspace\\ortho_lh_zo.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DCGLM_EXPORTS -Dcglm_EXPORTS -IC:/projects/engine/external/cglm/include -IC:/projects/engine/external/cglm/src -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\cglm\\CMakeFiles\\cglm.dir\\src\\clipspace\\ortho_rh_no.c.obj -c C:\\projects\\engine\\external\\cglm\\src\\clipspace\\ortho_rh_no.c",
+  "file": "C:\\projects\\engine\\external\\cglm\\src\\clipspace\\ortho_rh_no.c",
+  "output": "external\\cglm\\CMakeFiles\\cglm.dir\\src\\clipspace\\ortho_rh_no.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DCGLM_EXPORTS -Dcglm_EXPORTS -IC:/projects/engine/external/cglm/include -IC:/projects/engine/external/cglm/src -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\cglm\\CMakeFiles\\cglm.dir\\src\\clipspace\\ortho_rh_zo.c.obj -c C:\\projects\\engine\\external\\cglm\\src\\clipspace\\ortho_rh_zo.c",
+  "file": "C:\\projects\\engine\\external\\cglm\\src\\clipspace\\ortho_rh_zo.c",
+  "output": "external\\cglm\\CMakeFiles\\cglm.dir\\src\\clipspace\\ortho_rh_zo.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DCGLM_EXPORTS -Dcglm_EXPORTS -IC:/projects/engine/external/cglm/include -IC:/projects/engine/external/cglm/src -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\cglm\\CMakeFiles\\cglm.dir\\src\\clipspace\\persp_lh_no.c.obj -c C:\\projects\\engine\\external\\cglm\\src\\clipspace\\persp_lh_no.c",
+  "file": "C:\\projects\\engine\\external\\cglm\\src\\clipspace\\persp_lh_no.c",
+  "output": "external\\cglm\\CMakeFiles\\cglm.dir\\src\\clipspace\\persp_lh_no.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DCGLM_EXPORTS -Dcglm_EXPORTS -IC:/projects/engine/external/cglm/include -IC:/projects/engine/external/cglm/src -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\cglm\\CMakeFiles\\cglm.dir\\src\\clipspace\\persp_lh_zo.c.obj -c C:\\projects\\engine\\external\\cglm\\src\\clipspace\\persp_lh_zo.c",
+  "file": "C:\\projects\\engine\\external\\cglm\\src\\clipspace\\persp_lh_zo.c",
+  "output": "external\\cglm\\CMakeFiles\\cglm.dir\\src\\clipspace\\persp_lh_zo.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DCGLM_EXPORTS -Dcglm_EXPORTS -IC:/projects/engine/external/cglm/include -IC:/projects/engine/external/cglm/src -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\cglm\\CMakeFiles\\cglm.dir\\src\\clipspace\\persp_rh_no.c.obj -c C:\\projects\\engine\\external\\cglm\\src\\clipspace\\persp_rh_no.c",
+  "file": "C:\\projects\\engine\\external\\cglm\\src\\clipspace\\persp_rh_no.c",
+  "output": "external\\cglm\\CMakeFiles\\cglm.dir\\src\\clipspace\\persp_rh_no.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DCGLM_EXPORTS -Dcglm_EXPORTS -IC:/projects/engine/external/cglm/include -IC:/projects/engine/external/cglm/src -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\cglm\\CMakeFiles\\cglm.dir\\src\\clipspace\\persp_rh_zo.c.obj -c C:\\projects\\engine\\external\\cglm\\src\\clipspace\\persp_rh_zo.c",
+  "file": "C:\\projects\\engine\\external\\cglm\\src\\clipspace\\persp_rh_zo.c",
+  "output": "external\\cglm\\CMakeFiles\\cglm.dir\\src\\clipspace\\persp_rh_zo.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DCGLM_EXPORTS -Dcglm_EXPORTS -IC:/projects/engine/external/cglm/include -IC:/projects/engine/external/cglm/src -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\cglm\\CMakeFiles\\cglm.dir\\src\\clipspace\\view_lh_no.c.obj -c C:\\projects\\engine\\external\\cglm\\src\\clipspace\\view_lh_no.c",
+  "file": "C:\\projects\\engine\\external\\cglm\\src\\clipspace\\view_lh_no.c",
+  "output": "external\\cglm\\CMakeFiles\\cglm.dir\\src\\clipspace\\view_lh_no.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DCGLM_EXPORTS -Dcglm_EXPORTS -IC:/projects/engine/external/cglm/include -IC:/projects/engine/external/cglm/src -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\cglm\\CMakeFiles\\cglm.dir\\src\\clipspace\\view_lh_zo.c.obj -c C:\\projects\\engine\\external\\cglm\\src\\clipspace\\view_lh_zo.c",
+  "file": "C:\\projects\\engine\\external\\cglm\\src\\clipspace\\view_lh_zo.c",
+  "output": "external\\cglm\\CMakeFiles\\cglm.dir\\src\\clipspace\\view_lh_zo.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DCGLM_EXPORTS -Dcglm_EXPORTS -IC:/projects/engine/external/cglm/include -IC:/projects/engine/external/cglm/src -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\cglm\\CMakeFiles\\cglm.dir\\src\\clipspace\\view_rh_no.c.obj -c C:\\projects\\engine\\external\\cglm\\src\\clipspace\\view_rh_no.c",
+  "file": "C:\\projects\\engine\\external\\cglm\\src\\clipspace\\view_rh_no.c",
+  "output": "external\\cglm\\CMakeFiles\\cglm.dir\\src\\clipspace\\view_rh_no.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DCGLM_EXPORTS -Dcglm_EXPORTS -IC:/projects/engine/external/cglm/include -IC:/projects/engine/external/cglm/src -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\cglm\\CMakeFiles\\cglm.dir\\src\\clipspace\\view_rh_zo.c.obj -c C:\\projects\\engine\\external\\cglm\\src\\clipspace\\view_rh_zo.c",
+  "file": "C:\\projects\\engine\\external\\cglm\\src\\clipspace\\view_rh_zo.c",
+  "output": "external\\cglm\\CMakeFiles\\cglm.dir\\src\\clipspace\\view_rh_zo.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DCGLM_EXPORTS -Dcglm_EXPORTS -IC:/projects/engine/external/cglm/include -IC:/projects/engine/external/cglm/src -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\cglm\\CMakeFiles\\cglm.dir\\src\\clipspace\\project_no.c.obj -c C:\\projects\\engine\\external\\cglm\\src\\clipspace\\project_no.c",
+  "file": "C:\\projects\\engine\\external\\cglm\\src\\clipspace\\project_no.c",
+  "output": "external\\cglm\\CMakeFiles\\cglm.dir\\src\\clipspace\\project_no.c.obj"
+},
+{
+  "directory": "C:/projects/engine/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DCGLM_EXPORTS -Dcglm_EXPORTS -IC:/projects/engine/external/cglm/include -IC:/projects/engine/external/cglm/src -O0 -g -Xclang -gcodeview -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Wall -o external\\cglm\\CMakeFiles\\cglm.dir\\src\\clipspace\\project_zo.c.obj -c C:\\projects\\engine\\external\\cglm\\src\\clipspace\\project_zo.c",
+  "file": "C:\\projects\\engine\\external\\cglm\\src\\clipspace\\project_zo.c",
+  "output": "external\\cglm\\CMakeFiles\\cglm.dir\\src\\clipspace\\project_zo.c.obj"
+}
+]

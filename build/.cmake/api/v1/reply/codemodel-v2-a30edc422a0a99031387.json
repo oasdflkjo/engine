@@ -1,0 +1,210 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1,
+						4
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-Debug-d0094a50bb2071803777.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.15"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						1,
+						3,
+						4
+					]
+				},
+				{
+					"build" : "external/glfw",
+					"childIndexes" : 
+					[
+						2,
+						3
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-external.glfw-Debug-546c0a9bb0c3423ea609.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.4"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 1,
+					"source" : "external/glfw",
+					"targetIndexes" : 
+					[
+						5
+					]
+				},
+				{
+					"build" : "external/glfw/src",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-external.glfw.src-Debug-1131649002c2e77c400f.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.4"
+					},
+					"parentIndex" : 1,
+					"projectIndex" : 1,
+					"source" : "external/glfw/src",
+					"targetIndexes" : 
+					[
+						2,
+						6
+					]
+				},
+				{
+					"build" : "external/glfw/docs",
+					"jsonFile" : "directory-external.glfw.docs-Debug-3599a25893434c91c723.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.4"
+					},
+					"parentIndex" : 1,
+					"projectIndex" : 1,
+					"source" : "external/glfw/docs"
+				},
+				{
+					"build" : "external/cglm",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-external.cglm-Debug-a3df9d3ef44a8f5dc75d.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.13"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 2,
+					"source" : "external/cglm",
+					"targetIndexes" : 
+					[
+						0
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"childIndexes" : 
+					[
+						1,
+						2
+					],
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "ParticleSimulation",
+					"targetIndexes" : 
+					[
+						1,
+						3,
+						4
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						1,
+						2,
+						3
+					],
+					"name" : "GLFW",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						2,
+						5,
+						6
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						4
+					],
+					"name" : "cglm",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						0
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 4,
+					"id" : "cglm::@98d67f44c84c04a42d57",
+					"jsonFile" : "target-cglm-Debug-697551887dfd6c42e60d.json",
+					"name" : "cglm",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "glad::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-glad-Debug-8d04d967dfe14be94558.json",
+					"name" : "glad",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 2,
+					"id" : "glfw::@ca12bac854c2ac6b2230",
+					"jsonFile" : "target-glfw-Debug-280fe9c57bdceb1af280.json",
+					"name" : "glfw",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "imgui::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-imgui-Debug-b6b31838aba156e64f90.json",
+					"name" : "imgui",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "main::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-main-Debug-c014a0740d4e57038b37.json",
+					"name" : "main",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "uninstall::@691b517da5fa0f694cd4",
+					"jsonFile" : "target-uninstall-Debug-f6874de21f62798da2dd.json",
+					"name" : "uninstall",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 2,
+					"id" : "update_mappings::@ca12bac854c2ac6b2230",
+					"jsonFile" : "target-update_mappings-Debug-9d9331c4eeefd42d5b69.json",
+					"name" : "update_mappings",
+					"projectIndex" : 1
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "C:/projects/engine/build",
+		"source" : "C:/projects/engine"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 7
+	}
+}

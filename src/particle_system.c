@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define MAX_PARTICLES 60000000
+#define MAX_PARTICLES 40000000
 
 ParticleSystem* particle_system_create(void) {
     ParticleSystem* ps = malloc(sizeof(ParticleSystem));
@@ -29,6 +29,12 @@ ParticleSystem* particle_system_create(void) {
     ps->damping = 0.9f;
     ps->mouseForceRadius = 5.0f;
     ps->mouseForceStrength = 1.0f;
+    
+    // Initialize cube collision parameters
+    ps->cubePosition[0] = 0.0f;
+    ps->cubePosition[1] = 0.0f;
+    ps->cubeSize = 50.0f;
+    ps->cubeBounceFactor = 0.8f;
     
     return ps;
 }
@@ -168,6 +174,9 @@ static void update_uniforms(ParticleSystem* ps) {
     shader_program_set_float(ps->computeProgram, "attraction_strength", ps->attractionStrength);
     shader_program_set_float(ps->computeProgram, "time_scale", ps->timeScale);
     shader_program_set_vec2(ps->computeProgram, "gravity_point", ps->gravityPoint[0], ps->gravityPoint[1]);
+    shader_program_set_vec2(ps->computeProgram, "cube_position", ps->cubePosition[0], ps->cubePosition[1]);
+    shader_program_set_float(ps->computeProgram, "cube_size", ps->cubeSize);
+    shader_program_set_float(ps->computeProgram, "cube_bounce", ps->cubeBounceFactor);
 }
 
 void particle_system_update(ParticleSystem* ps) {
@@ -267,4 +276,17 @@ void particle_system_destroy(ParticleSystem* ps) {
         particle_system_cleanup(ps);
         free(ps);
     }
+}
+
+void particle_system_set_cube_position(ParticleSystem* ps, float x, float y) {
+    ps->cubePosition[0] = x;
+    ps->cubePosition[1] = y;
+}
+
+void particle_system_set_cube_size(ParticleSystem* ps, float size) {
+    ps->cubeSize = size;
+}
+
+void particle_system_set_cube_bounce(ParticleSystem* ps, float bounce) {
+    ps->cubeBounceFactor = bounce;
 }

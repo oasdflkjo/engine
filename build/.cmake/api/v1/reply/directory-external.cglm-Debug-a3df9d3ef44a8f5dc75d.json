@@ -1,0 +1,114 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"install"
+		],
+		"files" : 
+		[
+			"external/cglm/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 158,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 164,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 173,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 194,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"external/cglm/cglm.lib"
+			],
+			"targetId" : "cglm::@98d67f44c84c04a42d57",
+			"targetIndex" : 0,
+			"targetIsImportLibrary" : true,
+			"type" : "target"
+		},
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "bin",
+			"paths" : 
+			[
+				"external/cglm/cglm-0.dll"
+			],
+			"targetId" : "cglm::@98d67f44c84c04a42d57",
+			"targetIndex" : 0,
+			"type" : "target"
+		},
+		{
+			"backtrace" : 2,
+			"component" : "Unspecified",
+			"destination" : "include",
+			"paths" : 
+			[
+				"external/cglm/include/cglm"
+			],
+			"type" : "directory"
+		},
+		{
+			"backtrace" : 3,
+			"component" : "Unspecified",
+			"destination" : "lib/cmake/cglm",
+			"exportName" : "cglm",
+			"exportTargets" : 
+			[
+				{
+					"id" : "cglm::@98d67f44c84c04a42d57",
+					"index" : 0
+				}
+			],
+			"paths" : 
+			[
+				"external/cglm/CMakeFiles/Export/c1d47c5456110782bdc417ad7bdf8965/cglmConfig.cmake"
+			],
+			"type" : "export"
+		},
+		{
+			"backtrace" : 4,
+			"component" : "Unspecified",
+			"destination" : "lib/pkgconfig",
+			"paths" : 
+			[
+				"build/external/cglm/cglm.pc"
+			],
+			"type" : "file"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "external/cglm",
+		"source" : "external/cglm"
+	}
+}

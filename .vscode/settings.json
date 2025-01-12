@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "cglm.h": "c",
+        "emmintrin.h": "c",
+        "glfw3.h": "c",
+        "shader.h": "c",
+        "buffer_manager.h": "c",
+        "glad.h": "c",
+        "stdio.h": "c"
+    }
+}

@@ -18,12 +18,47 @@ uniform vec2 gravity_point;
 uniform int num_particles;
 uniform float attraction_strength;
 uniform float time_scale;
+uniform vec2 cube_position;
+uniform float cube_size;
+uniform float cube_bounce;
+
+bool checkCircleCollision(inout vec2 position, vec2 circleCenter, float radius, inout vec2 velocity) {
+    vec2 toCenter = position - circleCenter;
+    float dist = length(toCenter);
+    
+    // Check if particle is inside the circle
+    if (dist < radius) {
+        // Normalize the direction vector
+        vec2 normal = toCenter / dist;
+        
+        // Push the particle to the circle's edge
+        position = circleCenter + normal * radius;
+        
+        // Calculate reflection vector
+        // v' = v - 2(v·n)n where n is the normalized normal vector
+        float dotProduct = dot(velocity, normal);
+        velocity = velocity - 2.0 * dotProduct * normal;
+        
+        // Apply bounce factor
+        velocity *= cube_bounce;
+        
+        return true;
+    }
+    return false;
+}
 
 void main() {
     uint global_id = gl_GlobalInvocationID.x + 
                     gl_GlobalInvocationID.y * (gl_NumWorkGroups.x * gl_WorkGroupSize.x);
                     
     if (global_id >= num_particles) return;
+
+    // Handle circle collision first
+    float radius = cube_size * 0.5; // Use cube_size as diameter
+    if (checkCircleCollision(positions[global_id], cube_position, radius, velocities[global_id])) {
+        // Add a small push away from the surface to prevent sticking
+        positions[global_id] += velocities[global_id] * delta_time * time_scale * 1.1;
+    }
 
     // Update position with scaled time
     positions[global_id] += velocities[global_id] * delta_time * time_scale;
@@ -37,4 +72,7 @@ void main() {
     
     // Store velocity magnitude for rendering
     velocityMags[global_id] = length(velocities[global_id]);
+    
+    // Check for collision again after movement
+    checkCircleCollision(positions[global_id], cube_position, radius, velocities[global_id]);
 }

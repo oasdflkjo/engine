@@ -51,8 +51,8 @@ void world_render(World* world) {
     camera_get_view_matrix(&world->camera, view);
     camera_get_projection_matrix(&world->camera, projection);
     
-    // Render grid
-    grid_render(&world->grid, (float*)view, (float*)projection);
+    // Render grid (temporarily disabled)
+    // grid_render(&world->grid, (float*)view, (float*)projection);
 
     // Render particles
     particle_system_render(world->particle_system, view, projection);

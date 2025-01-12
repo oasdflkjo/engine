@@ -51,6 +51,10 @@ typedef struct {
     GLint mouseForceStrengthLocation;
     GLint attractionStrengthLocation;
     GLint timeScaleLocation;
+
+    vec2 cubePosition;
+    float cubeSize;
+    float cubeBounceFactor;
 } ParticleSystem;
 
 // Core functions
@@ -70,6 +74,10 @@ void particle_system_set_attraction_strength(ParticleSystem* ps, float strength)
 void particle_system_set_time_scale(ParticleSystem* ps, float scale);
 float particle_system_get_time_scale(ParticleSystem* ps);
 float particle_system_get_attraction_strength(ParticleSystem* ps);
+
+void particle_system_set_cube_position(ParticleSystem* ps, float x, float y);
+void particle_system_set_cube_size(ParticleSystem* ps, float size);
+void particle_system_set_cube_bounce(ParticleSystem* ps, float bounce);
 
 #ifdef __cplusplus
 }
