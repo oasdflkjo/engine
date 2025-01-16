@@ -11,8 +11,8 @@ out vec4 particleColor;
 void main() {
     gl_Position = projection * view * vec4(position, 0.0, 1.0);
     
-    // Calculate particle size based on camera distance (if needed)
-    gl_PointSize = 8.0;
+    // Set fixed point size of 2.0
+    gl_PointSize = 3.0;
     
     // Calculate velocity magnitude
     float speed = length(velocity);
@@ -27,5 +27,5 @@ void main() {
         normalizedSpeed
     );
     
-    particleColor = vec4(color, 1.0);
+    particleColor = vec4(color, 4.0);
 }

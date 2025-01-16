@@ -72,10 +72,8 @@ int main() {
     glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
 
     // Create window
-    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-    windowWidth = mode->width;
-    windowHeight = mode->height;
+    windowWidth = 1920;
+    windowHeight = 1080;
     
     GLFWwindow* window = glfwCreateWindow(windowWidth, windowHeight, "Particle Simulation", NULL, NULL);
     if (!window) {
@@ -84,8 +82,17 @@ int main() {
         return -1;
     }
 
+    // Hide cursor
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+
+    // Center the window on screen
+    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+    glfwSetWindowPos(window, 
+        (mode->width - windowWidth) / 2,
+        (mode->height - windowHeight) / 2);
+
     // Setup window
-    glfwSetWindowPos(window, 0, 0);
     glfwMakeContextCurrent(window);
     glfwSwapInterval(0);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
@@ -119,7 +126,7 @@ int main() {
     glfwSetKeyCallback(window, key_callback);
 
     // Main loop
-    const double targetFrameTime = 1.0 / 60.0;  // For 60 FPS
+    const double targetFrameTime = 1.0 / 120.0;  // For 60 FPS
     
     while (!glfwWindowShouldClose(window)) {
 

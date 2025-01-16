@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define MAX_PARTICLES 40000000
+#define MAX_PARTICLES 500000
 
 ParticleSystem* particle_system_create(void) {
     ParticleSystem* ps = malloc(sizeof(ParticleSystem));
@@ -26,7 +26,7 @@ ParticleSystem* particle_system_create(void) {
     ps->forceScale = 150.0f;
     ps->maxForce = 200.0f;
     ps->terminalVelocity = 100.0f;
-    ps->damping = 0.9f;
+    ps->damping = 0.89f;
     ps->mouseForceRadius = 5.0f;
     ps->mouseForceStrength = 1.0f;
     
@@ -113,6 +113,10 @@ void particle_system_init(ParticleSystem* ps) {
     if (!init_shaders(ps)) {
         return;
     }
+
+    // Enable program point size
+    glEnable(GL_PROGRAM_POINT_SIZE);
+    glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
 
     // Initialize particle data
     vec2* positions = (vec2*)malloc(ps->numParticles * sizeof(vec2));
