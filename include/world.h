@@ -5,6 +5,7 @@
 #include "grid.h"
 #include "hud.h"
 #include "particle_system.h"
+#include "post_processor.h"
 
 typedef struct World {
     GLFWwindow* window;
@@ -12,6 +13,7 @@ typedef struct World {
     Grid grid;
     ParticleSystem* particle_system;
     HUD hud;
+    PostProcessor post_processor;
 } World;
 
 void world_init(World* world, GLFWwindow* window, ParticleSystem* ps);

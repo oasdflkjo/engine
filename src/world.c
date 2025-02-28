@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <GLFW/glfw3.h>
+#include "post_processor.h"
 
 void world_init(World* world, GLFWwindow* window, ParticleSystem* ps) {
     world->window = window;
@@ -25,6 +26,8 @@ void world_init(World* world, GLFWwindow* window, ParticleSystem* ps) {
     // Initialize HUD with window handle
     world->hud.window = window;
     hud_init(&world->hud, world->particle_system);
+
+    post_processor_init(&world->post_processor, width, height);
 }
 
 void world_render(World* world) {
@@ -35,15 +38,18 @@ void world_render(World* world) {
     
     world->particle_system->deltaTime = deltaTime;
 
+    // Begin post-processing
+    post_processor_begin(&world->post_processor);
+
+    // Clear buffers
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     particle_system_set_gravity_point(world->particle_system, 
                                     world->camera.target[0], 
                                     world->camera.target[1]);
 
     // Update simulation
     particle_system_update(world->particle_system);
-
-    // Clear buffers
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Get matrices from camera
     mat4 view;
@@ -72,6 +78,13 @@ void world_render(World* world) {
     // Update HUD stats
     hud_update_stats(&world->hud, fps, world->particle_system->count, frameTime, deltaTime);
     
+    // End post-processing
+    post_processor_end(&world->post_processor);
+
+    // Render post-processed result
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    post_processor_render(&world->post_processor, currentFrame);
+
     // Render HUD
     hud_render(&world->hud);
 }
@@ -89,4 +102,6 @@ void world_cleanup(World* world) {
     
     // Finally cleanup grid
     grid_cleanup(&world->grid);
+
+    post_processor_cleanup(&world->post_processor);
 }
