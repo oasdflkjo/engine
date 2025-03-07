@@ -24,7 +24,7 @@ A high-performance particle simulation system leveraging modern OpenGL features 
   
 - **Interactive Controls**
   - Mouse-based gravity point control
-  - Camera pan and zoom functionality
+  - Camera zoom functionality
   - Real-time simulation parameter adjustment
 
 - **Performance Monitoring**
