@@ -6,10 +6,6 @@
 #include "hud.h"
 #include "particle_system.h"
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
-    glViewport(0, 0, width, height);
-}
-
 Camera camera;
 World world;
 float lastX = 0.0f;
@@ -17,6 +13,12 @@ float lastY = 0.0f;
 bool middleMousePressed = false;
 int windowWidth = 0;
 int windowHeight = 0;
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+    glViewport(0, 0, width, height);
+    world.camera.width = width;
+    world.camera.height = height;
+}
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
     camera_process_scroll(&world.camera, yoffset);
@@ -96,7 +98,7 @@ int main() {
 
     // Setup window
     glfwMakeContextCurrent(window);
-    glfwSwapInterval(1);
+    glfwSwapInterval(0);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);

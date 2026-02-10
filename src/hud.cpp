@@ -67,11 +67,13 @@ void hud_cleanup(HUD* hud) {
     ImGui::DestroyContext();
 }
 
-void hud_update_stats(HUD* hud, float fps, int particleCount, float frameTime, float deltaTime) {
+void hud_update_stats(HUD* hud, float fps, int particleCount, float frameTime, float deltaTime, float computeMs, float drawMs) {
     hud->fps = fps;
     hud->particleCount = particleCount;
     hud->frameTime = frameTime;
     hud->deltaTime = deltaTime;
+    hud->computeMs = computeMs;
+    hud->drawMs = drawMs;
     
     // Update time scale interpolation
     if (current_time_scale != target_time_scale) {
@@ -138,6 +140,8 @@ void hud_render(HUD* hud) {
             ImGui::Text("Frame Time: %.3f ms", hud->frameTime);
             ImGui::Text("Delta Time: %.3f ms", hud->deltaTime * 1000.0f);
             ImGui::Text("Particle Count: %d", hud->particleCount);
+            ImGui::Text("GPU Compute: %.3f ms", hud->computeMs);
+            ImGui::Text("GPU Draw: %.3f ms", hud->drawMs);
             ImGui::Text("Current Time Scale: %.2fx", current_time_scale);
         }
         

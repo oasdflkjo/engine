@@ -1,0 +1,28 @@
+#version 430
+layout(local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
+
+layout(std430, binding = 0) readonly buffer Particles {
+    vec4 particles[];
+};
+
+layout(r32ui, binding = 0) uniform uimage2D density_img;
+
+uniform int num_particles;
+uniform vec2 view_min;
+uniform vec2 view_max;
+uniform ivec2 viewport_size;
+
+void main() {
+    uint id = gl_GlobalInvocationID.x;
+    if (id >= uint(num_particles)) return;
+
+    vec2 pos = particles[id].xy;
+    vec2 span = view_max - view_min;
+    if (span.x <= 0.0 || span.y <= 0.0) return;
+
+    vec2 uv = (pos - view_min) / span;
+    ivec2 pix = ivec2(uv * vec2(viewport_size));
+    if (pix.x < 0 || pix.y < 0 || pix.x >= viewport_size.x || pix.y >= viewport_size.y) return;
+
+    imageAtomicAdd(density_img, pix, 1u);
+}

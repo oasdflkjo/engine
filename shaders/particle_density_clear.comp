@@ -1,0 +1,11 @@
+#version 430
+layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
+
+layout(r32ui, binding = 0) uniform uimage2D density_img;
+uniform ivec2 viewport_size;
+
+void main() {
+    ivec2 pix = ivec2(gl_GlobalInvocationID.xy);
+    if (pix.x >= viewport_size.x || pix.y >= viewport_size.y) return;
+    imageStore(density_img, pix, uvec4(0u, 0u, 0u, 0u));
+}

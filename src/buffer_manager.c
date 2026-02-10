@@ -2,17 +2,9 @@
 #include <xmmintrin.h>  // SSE
 #include <emmintrin.h>  // SSE2
 #include <stdlib.h>
+#include <stdint.h>
 
-static inline uint32_t xorshift32(uint32_t* state) {
-    uint32_t x = *state;
-    x ^= x << 13;
-    x ^= x >> 17;
-    x ^= x << 5;
-    *state = x;
-    return x;
-}
-
-void init_particle_positions(vec2* positions, int numParticles) {
+void init_particle_data(vec4* particleData, int numParticles) {
     __m128i state = _mm_set_epi32(0xDEADBEEF, 0xB00B1E55, 0xBADF00D5, 0xCAFEBABE);
     __m128 scale = _mm_set1_ps(2.0f / (float)UINT32_MAX);
     __m128 world_scale = _mm_set1_ps(500.0f);
@@ -37,94 +29,60 @@ void init_particle_positions(vec2* positions, int numParticles) {
         __m128 xy0 = _mm_unpacklo_ps(fx, fy);
         __m128 xy1 = _mm_unpackhi_ps(fx, fy);
         
+        float xy_temp[8];
+        _mm_storeu_ps(&xy_temp[0], xy0);
+        _mm_storeu_ps(&xy_temp[4], xy1);
+
         int remaining = numParticles - i;
-        if (remaining >= 4) {
-            _mm_store_ps((float*)&positions[i], xy0);
-            _mm_store_ps((float*)&positions[i + 2], xy1);
-        } else {
-            float temp[4];
-            _mm_store_ps(temp, xy0);
-            for (int j = 0; j < remaining && j < 2; j++) {
-                positions[i + j][0] = temp[j*2];
-                positions[i + j][1] = temp[j*2 + 1];
-            }
-            if (remaining > 2) {
-                _mm_store_ps(temp, xy1);
-                for (int j = 0; j < remaining - 2; j++) {
-                    positions[i + j + 2][0] = temp[j*2];
-                    positions[i + j + 2][1] = temp[j*2 + 1];
-                }
-            }
+        int batch = remaining < 4 ? remaining : 4;
+        for (int j = 0; j < batch; j++) {
+            particleData[i + j][0] = xy_temp[j * 2];
+            particleData[i + j][1] = xy_temp[j * 2 + 1];
+            particleData[i + j][2] = 0.0f;
+            particleData[i + j][3] = 0.0f;
         }
     }
 }
 
-void zero_particle_velocities(vec2* velocities, int numParticles) {
-    __m128 zero = _mm_setzero_ps();
-    
-    int aligned_count = (numParticles / 2) * 2;
-    for (int i = 0; i < aligned_count; i += 2) {
-        _mm_store_ps((float*)&velocities[i], zero);
-    }
-    
-    for (int i = aligned_count; i < numParticles; i++) {
-        velocities[i][0] = 0.0f;
-        velocities[i][1] = 0.0f;
-    }
-}
-
-ParticleBuffers create_particle_buffers(int numParticles, vec2* positions, vec2* velocities) {
+ParticleBuffers create_particle_buffers(int numParticles, vec4* particleData) {
     ParticleBuffers buffers = {0};
     
-    // Create all buffers at once
-    GLuint buffer_ids[3];
-    glGenBuffers(3, buffer_ids);
-    buffers.positionBuffer = buffer_ids[0];
-    buffers.velocityBuffer = buffer_ids[1];
-    buffers.velocityMagBuffer = buffer_ids[2];
+    glGenBuffers(1, &buffers.particleBuffer);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffers.particleBuffer);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, numParticles * sizeof(vec4), particleData, GL_DYNAMIC_DRAW);
 
-    // Initialize buffers with data
-    struct {
-        GLuint buffer;
-        void* data;
-        size_t size;
-    } buffer_data[] = {
-        {buffers.positionBuffer, positions, numParticles * sizeof(vec2)},
-        {buffers.velocityBuffer, velocities, numParticles * sizeof(vec2)},
-        {buffers.velocityMagBuffer, NULL, numParticles * sizeof(float)}
-    };
+    glGenBuffers(1, &buffers.visibleParticleBuffer);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffers.visibleParticleBuffer);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, numParticles * sizeof(vec4), NULL, GL_DYNAMIC_DRAW);
 
-    for (int i = 0; i < 3; i++) {
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffer_data[i].buffer);
-        glBufferData(GL_SHADER_STORAGE_BUFFER, buffer_data[i].size, 
-                    buffer_data[i].data, GL_DYNAMIC_DRAW);
-    }
+    glGenBuffers(1, &buffers.drawCommandBuffer);
+    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, buffers.drawCommandBuffer);
+    GLuint drawCmd[4] = {0u, 1u, 0u, 0u}; // count, instanceCount, first, baseInstance
+    glBufferData(GL_DRAW_INDIRECT_BUFFER, sizeof(drawCmd), drawCmd, GL_DYNAMIC_DRAW);
 
-    // Setup VAO for instanced rendering
+    // Setup VAO for direct per-particle rendering
     glGenVertexArrays(1, &buffers.particleVAO);
     glBindVertexArray(buffers.particleVAO);
-    
-    // Position attribute
-    glBindBuffer(GL_ARRAY_BUFFER, buffers.positionBuffer);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(vec2), (void*)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribDivisor(0, 1);
 
-    // Velocity magnitude attribute
-    glBindBuffer(GL_ARRAY_BUFFER, buffers.velocityMagBuffer);
-    glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, sizeof(float), (void*)0);
+    glBindBuffer(GL_ARRAY_BUFFER, buffers.visibleParticleBuffer);
+
+    // Position: vec2 at offset 0 in vec4
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(vec4), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    // Velocity: vec2 at offset 8 bytes in vec4
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(vec4), (void*)(2 * sizeof(float)));
     glEnableVertexAttribArray(1);
-    glVertexAttribDivisor(1, 1);
 
     return buffers;
 }
 
 void destroy_particle_buffers(ParticleBuffers* buffers) {
     GLuint buffer_ids[] = {
-        buffers->positionBuffer,
-        buffers->velocityBuffer,
-        buffers->velocityMagBuffer
+        buffers->particleBuffer,
+        buffers->visibleParticleBuffer,
+        buffers->drawCommandBuffer
     };
     glDeleteBuffers(3, buffer_ids);
     glDeleteVertexArrays(1, &buffers->particleVAO);
-} 
+}

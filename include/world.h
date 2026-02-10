@@ -12,6 +12,10 @@ typedef struct World {
     Grid grid;
     ParticleSystem* particle_system;
     HUD hud;
+    GLuint computeQueries[8];
+    GLuint drawQueries[8];
+    int queryIndex;
+    int framesRendered;
 } World;
 
 void world_init(World* world, GLFWwindow* window, ParticleSystem* ps);

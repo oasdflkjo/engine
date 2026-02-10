@@ -16,13 +16,18 @@ typedef struct {
     vec2 gravityPoint;
 
     // OpenGL objects
-    GLuint positionBuffer;
-    GLuint velocityBuffer;
-    GLuint velocityMagBuffer;
+    GLuint particleBuffer;
+    GLuint visibleParticleBuffer;
+    GLuint drawCommandBuffer;
     GLuint particleVAO;
+    GLuint densityTexture;
+    GLuint screenVAO;
     
     // Shader programs
     ShaderProgram* computeProgram;
+    ShaderProgram* cullProgram;
+    ShaderProgram* densityClearProgram;
+    ShaderProgram* densityAccumulateProgram;
     ShaderProgram* renderProgram;
 
     // Physics parameters
@@ -35,6 +40,12 @@ typedef struct {
     float mouseForceStrength;
     float attractionStrength;
     float timeScale;
+    float pixelsPerWorld;
+    float particleRadiusWorld;
+    int viewportWidth;
+    int viewportHeight;
+    vec2 viewMin;
+    vec2 viewMax;
 
     // Uniform locations
     GLint deltaTimeLocation;
@@ -51,6 +62,17 @@ typedef struct {
     GLint mouseForceStrengthLocation;
     GLint attractionStrengthLocation;
     GLint timeScaleLocation;
+    GLint cullNumParticlesLocation;
+    GLint cullViewMinLocation;
+    GLint cullViewMaxLocation;
+    GLint densityClearViewportLocation;
+    GLint densityAccumNumParticlesLocation;
+    GLint densityAccumViewMinLocation;
+    GLint densityAccumViewMaxLocation;
+    GLint densityAccumViewportLocation;
+    GLint renderPixelsPerWorldLocation;
+    GLint renderParticleRadiusWorldLocation;
+    GLint renderDensityTexLocation;
 } ParticleSystem;
 
 // Core functions
@@ -68,6 +90,9 @@ void particle_system_set_damping(ParticleSystem* ps, float damping);
 void particle_system_set_terminal_velocity(ParticleSystem* ps, float velocity);
 void particle_system_set_attraction_strength(ParticleSystem* ps, float strength);
 void particle_system_set_time_scale(ParticleSystem* ps, float scale);
+void particle_system_set_pixels_per_world(ParticleSystem* ps, float pixelsPerWorld);
+void particle_system_set_viewport_size(ParticleSystem* ps, int width, int height);
+void particle_system_set_view_bounds(ParticleSystem* ps, float minX, float minY, float maxX, float maxY);
 float particle_system_get_time_scale(ParticleSystem* ps);
 float particle_system_get_attraction_strength(ParticleSystem* ps);
 

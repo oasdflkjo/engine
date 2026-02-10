@@ -1,16 +1,8 @@
 #version 430
-layout(local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
+layout(local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
 
-layout(std430, binding = 0) buffer Position {
-    vec2 positions[];
-};
-
-layout(std430, binding = 1) buffer Velocity {
-    vec2 velocities[];
-};
-
-layout(std430, binding = 2) buffer VelocityMagnitude {
-    float velocityMags[];
+layout(std430, binding = 0) buffer Particles {
+    vec4 particles[];
 };
 
 uniform float delta_time;
@@ -20,21 +12,28 @@ uniform float attraction_strength;
 uniform float time_scale;
 
 void main() {
-    uint global_id = gl_GlobalInvocationID.x + 
-                    gl_GlobalInvocationID.y * (gl_NumWorkGroups.x * gl_WorkGroupSize.x);
+    uint global_id = gl_GlobalInvocationID.x;
                     
     if (global_id >= num_particles) return;
 
+    vec2 position = particles[global_id].xy;
+    vec2 velocity = particles[global_id].zw;
+
     // Update position with scaled time
-    positions[global_id] += velocities[global_id] * delta_time * time_scale;
+    position += velocity * delta_time * time_scale;
     
     // Simple attraction to gravity point with configurable strength
-    vec2 direction = normalize(gravity_point - positions[global_id]);
-    velocities[global_id] += direction * attraction_strength * delta_time * time_scale;
+    vec2 to_gravity = gravity_point - position;
+    vec2 direction = vec2(0.0);
+    float dist2 = dot(to_gravity, to_gravity);
+    if (dist2 > 1e-12) {
+        direction = to_gravity * inversesqrt(dist2);
+    }
+
+    velocity += direction * attraction_strength * delta_time * time_scale;
     
     // Simple dampening
-    velocities[global_id] *= 0.9988;
-    
-    // Store velocity magnitude for rendering
-    velocityMags[global_id] = length(velocities[global_id]);
+    velocity *= 0.9988;
+
+    particles[global_id] = vec4(position, velocity);
 }

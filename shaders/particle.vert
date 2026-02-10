@@ -5,14 +5,17 @@ layout (location = 1) in vec2 velocity;
 
 uniform mat4 view;
 uniform mat4 projection;
+uniform float pixels_per_world;
+uniform float particle_radius_world;
 
 out vec4 particleColor;
 
 void main() {
     gl_Position = projection * view * vec4(position, 0.0, 1.0);
     
-    // Calculate particle size based on camera distance (if needed)
-    gl_PointSize = 8.0;
+    // Keep particle size consistent in world space; avoids extreme overdraw when zoomed out
+    float pointSize = 2.0 * particle_radius_world * pixels_per_world;
+    gl_PointSize = clamp(pointSize, 1.0, 8.0);
     
     // Calculate velocity magnitude
     float speed = length(velocity);

@@ -14,13 +14,15 @@ typedef struct HUD {
     int particleCount;
     float frameTime;
     float deltaTime;
+    float computeMs;
+    float drawMs;
 } HUD;
 
 // Declare all functions with C linkage
 void hud_init(HUD* hud, ParticleSystem* ps);
 void hud_render(HUD* hud);
 void hud_cleanup(HUD* hud);
-void hud_update_stats(HUD* hud, float fps, int particleCount, float frameTime, float deltaTime);
+void hud_update_stats(HUD* hud, float fps, int particleCount, float frameTime, float deltaTime, float computeMs, float drawMs);
 void hud_toggle(HUD* hud);
 
 #ifdef __cplusplus

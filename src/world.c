@@ -5,6 +5,8 @@
 #include <math.h>
 #include <GLFW/glfw3.h>
 
+#define GPU_QUERY_RING_SIZE 8
+
 void world_init(World* world, GLFWwindow* window, ParticleSystem* ps) {
     world->window = window;
     world->particle_system = ps;
@@ -25,6 +27,14 @@ void world_init(World* world, GLFWwindow* window, ParticleSystem* ps) {
     // Initialize HUD with window handle
     world->hud.window = window;
     hud_init(&world->hud, world->particle_system);
+    world->hud.computeMs = 0.0f;
+    world->hud.drawMs = 0.0f;
+
+    // Initialize GPU timer queries (double-buffered to avoid stalls)
+    glGenQueries(GPU_QUERY_RING_SIZE, world->computeQueries);
+    glGenQueries(GPU_QUERY_RING_SIZE, world->drawQueries);
+    world->queryIndex = 0;
+    world->framesRendered = 0;
 }
 
 void world_render(World* world) {
@@ -33,14 +43,47 @@ void world_render(World* world) {
     float deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
     
+    int writeIndex = world->queryIndex;
+    int readIndex = (writeIndex + 1) % GPU_QUERY_RING_SIZE;
+    if (world->framesRendered >= GPU_QUERY_RING_SIZE) {
+        GLuint available = 0;
+        glGetQueryObjectuiv(world->computeQueries[readIndex], GL_QUERY_RESULT_AVAILABLE, &available);
+        if (available) {
+            GLuint64 ns = 0;
+            glGetQueryObjectui64v(world->computeQueries[readIndex], GL_QUERY_RESULT, &ns);
+            world->hud.computeMs = (float)ns / 1000000.0f;
+        }
+
+        available = 0;
+        glGetQueryObjectuiv(world->drawQueries[readIndex], GL_QUERY_RESULT_AVAILABLE, &available);
+        if (available) {
+            GLuint64 ns = 0;
+            glGetQueryObjectui64v(world->drawQueries[readIndex], GL_QUERY_RESULT, &ns);
+            world->hud.drawMs = (float)ns / 1000000.0f;
+        }
+    }
+
     world->particle_system->deltaTime = deltaTime;
+    particle_system_set_viewport_size(world->particle_system, world->camera.width, world->camera.height);
+    float aspect = (float)world->camera.width / (float)world->camera.height;
+    float halfHeight = world->camera.position[2];
+    float halfWidth = aspect * halfHeight;
+    float pixelsPerWorld = (float)world->camera.height / (2.0f * halfHeight);
+    float minX = world->camera.target[0] - halfWidth;
+    float maxX = world->camera.target[0] + halfWidth;
+    float minY = world->camera.target[1] - halfHeight;
+    float maxY = world->camera.target[1] + halfHeight;
+    particle_system_set_pixels_per_world(world->particle_system, pixelsPerWorld);
+    particle_system_set_view_bounds(world->particle_system, minX, minY, maxX, maxY);
 
     particle_system_set_gravity_point(world->particle_system, 
                                     world->camera.target[0], 
                                     world->camera.target[1]);
 
     // Update simulation
+    glBeginQuery(GL_TIME_ELAPSED, world->computeQueries[writeIndex]);
     particle_system_update(world->particle_system);
+    glEndQuery(GL_TIME_ELAPSED);
 
     // Clear buffers
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -55,7 +98,9 @@ void world_render(World* world) {
     grid_render(&world->grid, (float*)view, (float*)projection);
 
     // Render particles
+    glBeginQuery(GL_TIME_ELAPSED, world->drawQueries[writeIndex]);
     particle_system_render(world->particle_system, view, projection);
+    glEndQuery(GL_TIME_ELAPSED);
     
     // Calculate FPS and frame time
     static float fps = 0.0f;
@@ -70,10 +115,13 @@ void world_render(World* world) {
     }
     
     // Update HUD stats
-    hud_update_stats(&world->hud, fps, world->particle_system->count, frameTime, deltaTime);
+    hud_update_stats(&world->hud, fps, world->particle_system->count, frameTime, deltaTime, world->hud.computeMs, world->hud.drawMs);
     
     // Render HUD
     hud_render(&world->hud);
+
+    world->queryIndex = (world->queryIndex + 1) % GPU_QUERY_RING_SIZE;
+    world->framesRendered++;
 }
 
 void world_cleanup(World* world) {
@@ -89,4 +137,7 @@ void world_cleanup(World* world) {
     
     // Finally cleanup grid
     grid_cleanup(&world->grid);
+
+    glDeleteQueries(GPU_QUERY_RING_SIZE, world->computeQueries);
+    glDeleteQueries(GPU_QUERY_RING_SIZE, world->drawQueries);
 }

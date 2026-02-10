@@ -5,18 +5,17 @@
 #include <cglm/cglm.h>
 
 typedef struct {
-    GLuint positionBuffer;
-    GLuint velocityBuffer;
-    GLuint velocityMagBuffer;
+    GLuint particleBuffer;
+    GLuint visibleParticleBuffer;
+    GLuint drawCommandBuffer;
     GLuint particleVAO;
 } ParticleBuffers;
 
 // Buffer initialization and management
-ParticleBuffers create_particle_buffers(int numParticles, vec2* positions, vec2* velocities);
+ParticleBuffers create_particle_buffers(int numParticles, vec4* particleData);
 void destroy_particle_buffers(ParticleBuffers* buffers);
 
-// SIMD-optimized particle data initialization
-void init_particle_positions(vec2* positions, int numParticles);
-void zero_particle_velocities(vec2* velocities, int numParticles);
+// Initialize packed particle data: xy = position, zw = velocity
+void init_particle_data(vec4* particleData, int numParticles);
 
 #endif // BUFFER_MANAGER_H 
