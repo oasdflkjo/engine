@@ -69,15 +69,25 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
-
-    // Create window
+    // Create fullscreen window on primary monitor
     GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+    if (!monitor) {
+        fprintf(stderr, "Failed to get primary monitor\n");
+        glfwTerminate();
+        return -1;
+    }
+
     const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+    if (!mode) {
+        fprintf(stderr, "Failed to get monitor video mode\n");
+        glfwTerminate();
+        return -1;
+    }
+
     windowWidth = mode->width;
     windowHeight = mode->height;
     
-    GLFWwindow* window = glfwCreateWindow(windowWidth, windowHeight, "Particle Simulation", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(windowWidth, windowHeight, "Particle Simulation", monitor, NULL);
     if (!window) {
         fprintf(stderr, "Failed to create GLFW window\n");
         glfwTerminate();
@@ -85,9 +95,8 @@ int main() {
     }
 
     // Setup window
-    glfwSetWindowPos(window, 0, 0);
     glfwMakeContextCurrent(window);
-    glfwSwapInterval(0);
+    glfwSwapInterval(1);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
@@ -119,8 +128,6 @@ int main() {
     glfwSetKeyCallback(window, key_callback);
 
     // Main loop
-    const double targetFrameTime = 1.0 / 60.0;  // For 60 FPS
-    
     while (!glfwWindowShouldClose(window)) {
 
         static float lastFrame = 0.0f;
@@ -136,11 +143,6 @@ int main() {
         glfwSwapBuffers(window);
         
         glfwPollEvents();
-        
-        // Frame limiting
-        while (glfwGetTime() - currentFrame < targetFrameTime) {
-            // Busy-wait or could use a sleep for better CPU usage
-        }
     }
 
     // Cleanup

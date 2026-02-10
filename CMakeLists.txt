@@ -9,6 +9,8 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+find_package(OpenGL REQUIRED)
+
 # Find all source files using wildcards
 file(GLOB_RECURSE SOURCES 
     "src/*.c"
@@ -70,7 +72,7 @@ target_link_libraries(main PRIVATE
     glad
     cglm
     imgui
-    opengl32
+    OpenGL::GL
 )
 
 # Set the output directory for the executable
