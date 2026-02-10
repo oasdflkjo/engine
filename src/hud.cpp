@@ -32,19 +32,27 @@ void hud_init(HUD* hud, ParticleSystem* ps) {
     ImGui_ImplGlfw_InitForOpenGL(hud->window, true);
     ImGui_ImplOpenGL3_Init("#version 430");
 
-    // Get window size for proper scaling
+    // Derive UI scale from logical window size and font scale from framebuffer DPI.
     int width, height;
+    int fb_width, fb_height;
     glfwGetWindowSize(hud->window, &width, &height);
-    float scale = (float)height / 1080.0f; // Base scale on 1080p
+    glfwGetFramebufferSize(hud->window, &fb_width, &fb_height);
+    float ui_scale = (float)height / 1080.0f;
+    float dpi_scale = (height > 0) ? ((float)fb_height / (float)height) : 1.0f;
 
-    // Setup font with proper scaling
+    // Setup font with DPI-aware sizing for crisper text
     io.Fonts->Clear();
     ImFontConfig font_config;
-    font_config.SizePixels = 13.0f * scale;
-    font_config.OversampleH = 8;
-    font_config.OversampleV = 8;
-    font_config.PixelSnapH = true;
-    io.Fonts->AddFontDefault(&font_config);
+    font_config.SizePixels = 16.0f * dpi_scale;
+    font_config.OversampleH = 3;
+    font_config.OversampleV = 2;
+    font_config.PixelSnapH = false;
+    font_config.RasterizerMultiply = 1.05f;
+
+    ImFont* font = io.Fonts->AddFontFromFileTTF("external/imgui/misc/fonts/Cousine-Regular.ttf", font_config.SizePixels, &font_config);
+    if (!font) {
+        io.Fonts->AddFontDefault(&font_config);
+    }
     io.Fonts->Build();
 
     // Setup Dear ImGui style
@@ -52,7 +60,7 @@ void hud_init(HUD* hud, ParticleSystem* ps) {
     
     // Scale style
     ImGuiStyle& style = ImGui::GetStyle();
-    style.ScaleAllSizes(scale);
+    style.ScaleAllSizes(ui_scale);
     
     // Customize colors for better visibility
     ImVec4* colors = style.Colors;
