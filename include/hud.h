@@ -16,6 +16,7 @@ typedef struct HUD {
     float deltaTime;
     float computeMs;
     float drawMs;
+    int showGrid;
 } HUD;
 
 // Declare all functions with C linkage

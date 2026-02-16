@@ -46,6 +46,7 @@ ParticleSystem* particle_system_create(void) {
     ps->gravityPoint[1] = 0.0f;
     ps->pixelsPerWorld = 1.0f;
     ps->particleRadiusWorld = 0.5f;
+    ps->directRenderPixelsThreshold = 2.0f;
     ps->viewportWidth = 1;
     ps->viewportHeight = 1;
     ps->viewMin[0] = -500.0f;
@@ -102,6 +103,23 @@ static bool init_shaders(ParticleSystem* ps) {
         return false;
     }
 
+    const char* point_render_files[] = {
+        "shaders/particle.vert",
+        "shaders/particle.frag"
+    };
+    GLenum point_render_types[] = {
+        GL_VERTEX_SHADER,
+        GL_FRAGMENT_SHADER
+    };
+    ps->pointRenderProgram = shader_program_create(point_render_files, point_render_types, 2);
+    if (!ps->pointRenderProgram) {
+        shader_program_destroy(ps->densityAccumulateProgram);
+        shader_program_destroy(ps->densityClearProgram);
+        shader_program_destroy(ps->cullProgram);
+        shader_program_destroy(ps->computeProgram);
+        return false;
+    }
+
     const char* render_files[] = {
         "shaders/particle_resolve.vert",
         "shaders/particle_resolve.frag"
@@ -112,6 +130,7 @@ static bool init_shaders(ParticleSystem* ps) {
     };
     ps->renderProgram = shader_program_create(render_files, render_types, 2);
     if (!ps->renderProgram) {
+        shader_program_destroy(ps->pointRenderProgram);
         shader_program_destroy(ps->densityAccumulateProgram);
         shader_program_destroy(ps->densityClearProgram);
         shader_program_destroy(ps->cullProgram);
@@ -128,6 +147,13 @@ static bool init_shaders(ParticleSystem* ps) {
         "time_scale"
     };
     shader_program_cache_uniforms(ps->computeProgram, compute_uniforms, sizeof(compute_uniforms)/sizeof(compute_uniforms[0]));
+
+    const char* cull_uniforms[] = {
+        "num_particles",
+        "view_min",
+        "view_max"
+    };
+    shader_program_cache_uniforms(ps->cullProgram, cull_uniforms, 3);
 
     const char* density_clear_uniforms[] = {
         "viewport_size"
@@ -168,6 +194,9 @@ static void init_uniform_locations(ParticleSystem* ps) {
         *uniforms[i].location = shader_program_get_uniform(ps->computeProgram, uniforms[i].name);
     }
 
+    ps->cullNumParticlesLocation = shader_program_get_uniform(ps->cullProgram, "num_particles");
+    ps->cullViewMinLocation = shader_program_get_uniform(ps->cullProgram, "view_min");
+    ps->cullViewMaxLocation = shader_program_get_uniform(ps->cullProgram, "view_max");
     ps->densityClearViewportLocation = shader_program_get_uniform(ps->densityClearProgram, "viewport_size");
     ps->densityAccumNumParticlesLocation = shader_program_get_uniform(ps->densityAccumulateProgram, "num_particles");
     ps->densityAccumViewMinLocation = shader_program_get_uniform(ps->densityAccumulateProgram, "view_min");
@@ -254,8 +283,6 @@ void particle_system_update(ParticleSystem* ps) {
 }
 
 void particle_system_render(ParticleSystem* ps, mat4 view, mat4 projection) {
-    (void)view;
-    (void)projection;
     shader_program_use(ps->renderProgram);
     if (ps->renderDensityTexLocation != -1) glUniform1i(ps->renderDensityTexLocation, 0);
     if (ps->renderPixelsPerWorldLocation != -1) glUniform1f(ps->renderPixelsPerWorldLocation, ps->pixelsPerWorld);
@@ -297,6 +324,10 @@ void particle_system_cleanup(ParticleSystem* ps) {
     if (ps->densityAccumulateProgram) {
         shader_program_destroy(ps->densityAccumulateProgram);
         ps->densityAccumulateProgram = NULL;
+    }
+    if (ps->pointRenderProgram) {
+        shader_program_destroy(ps->pointRenderProgram);
+        ps->pointRenderProgram = NULL;
     }
     if (ps->renderProgram) {
         shader_program_destroy(ps->renderProgram);

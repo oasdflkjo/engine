@@ -40,7 +40,7 @@ void world_init(World* world, GLFWwindow* window, ParticleSystem* ps) {
 void world_render(World* world) {
     static float lastFrame = 0.0f;
     float currentFrame = glfwGetTime();
-    float deltaTime = currentFrame - lastFrame;
+    float deltaTime = (lastFrame > 0.0f) ? (currentFrame - lastFrame) : (1.0f / 60.0f);
     lastFrame = currentFrame;
     
     int writeIndex = world->queryIndex;
@@ -95,7 +95,9 @@ void world_render(World* world) {
     camera_get_projection_matrix(&world->camera, projection);
     
     // Render grid
-    grid_render(&world->grid, (float*)view, (float*)projection);
+    if (world->hud.showGrid) {
+        grid_render(&world->grid, (float*)view, (float*)projection);
+    }
 
     // Render particles
     glBeginQuery(GL_TIME_ELAPSED, world->drawQueries[writeIndex]);
@@ -106,12 +108,16 @@ void world_render(World* world) {
     static float fps = 0.0f;
     static float frameTime = 0.0f;
     static float fpsUpdateTimer = 0.0f;
+    static int fpsFrameCount = 0;
     
     fpsUpdateTimer += deltaTime;
-    if (fpsUpdateTimer >= 0.1f) {
-        fps = 1.0f / deltaTime;
-        frameTime = deltaTime * 1000.0f;
+    fpsFrameCount++;
+    if (fpsUpdateTimer >= 0.25f) {
+        float averageDeltaTime = fpsUpdateTimer / (float)fpsFrameCount;
+        fps = (averageDeltaTime > 0.0f) ? (1.0f / averageDeltaTime) : 0.0f;
+        frameTime = averageDeltaTime * 1000.0f;
         fpsUpdateTimer = 0.0f;
+        fpsFrameCount = 0;
     }
     
     // Update HUD stats

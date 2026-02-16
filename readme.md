@@ -38,3 +38,27 @@ A high-performance particle simulation system leveraging modern OpenGL features 
 - **CGLM** - Graphics mathematics library
 - **GLAD** - OpenGL function loader
 - **Dear ImGui** - Debug UI and statistics display
+
+## Built-In Recording (FFmpeg + VAAPI)
+
+The engine can capture frames directly from its OpenGL back buffer and encode with VAAPI.
+
+1. Configure with recording enabled:
+```bash
+cmake -S . -B build -DENABLE_RECORDING=ON
+cmake --build build
+```
+2. Run with recording enabled:
+```bash
+ENGINE_RECORD=1 ./main
+```
+
+Optional environment variables:
+- `ENGINE_RECORD_OUTPUT` (default: `capture.mkv`)
+- `ENGINE_RECORD_CODEC` (default: `hevc_vaapi`)
+- `ENGINE_RECORD_DEVICE` (default: `/dev/dri/renderD128`)
+- `ENGINE_RECORD_RATE_CONTROL` (default: `quality`, options: `quality`, `cbr`)
+- `ENGINE_RECORD_QP` (default: `18`, used in `quality` mode; lower = higher quality)
+- `ENGINE_RECORD_BITRATE_KBPS` (default: `50000`)
+- `ENGINE_RECORD_FPS` (default: `60`)
+- `ENGINE_RECORD_KEYINT` (default: `FPS * 2`)

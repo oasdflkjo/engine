@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 project(ParticleSimulation)
+option(ENABLE_RECORDING "Enable in-engine FFmpeg VAAPI recording" OFF)
 
 # Enable both C and C++
 enable_language(C CXX)
@@ -74,6 +75,18 @@ target_link_libraries(main PRIVATE
     imgui
     OpenGL::GL
 )
+
+if(ENABLE_RECORDING)
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(FFMPEG REQUIRED IMPORTED_TARGET
+        libavcodec
+        libavformat
+        libavutil
+        libswscale
+    )
+    target_compile_definitions(main PRIVATE ENABLE_RECORDING=1)
+    target_link_libraries(main PRIVATE PkgConfig::FFMPEG)
+endif()
 
 # Set the output directory for the executable
 set_target_properties(main PROPERTIES 

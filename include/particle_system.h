@@ -28,6 +28,7 @@ typedef struct {
     ShaderProgram* cullProgram;
     ShaderProgram* densityClearProgram;
     ShaderProgram* densityAccumulateProgram;
+    ShaderProgram* pointRenderProgram;
     ShaderProgram* renderProgram;
 
     // Physics parameters
@@ -42,6 +43,7 @@ typedef struct {
     float timeScale;
     float pixelsPerWorld;
     float particleRadiusWorld;
+    float directRenderPixelsThreshold;
     int viewportWidth;
     int viewportHeight;
     vec2 viewMin;

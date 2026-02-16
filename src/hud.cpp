@@ -18,6 +18,7 @@ extern "C" {
 
 void hud_init(HUD* hud, ParticleSystem* ps) {
     current_simulation = ps;  // Store simulation pointer
+    hud->showGrid = 1;
     
     // Initialize time scales
     current_time_scale = particle_system_get_time_scale(ps);
@@ -132,10 +133,10 @@ void hud_render(HUD* hud) {
     // Stats and controls window
     if (show_window) {
         ImGuiIO& io = ImGui::GetIO();
-        ImVec2 window_pos(10.0f, show_menu_bar ? 30.0f : 10.0f);
+        ImVec2 window_pos(io.DisplaySize.x - 10.0f, show_menu_bar ? 30.0f : 10.0f);
         ImVec2 window_size(250.0f * (io.DisplaySize.y / 1080.0f), 0.0f);
         
-        ImGui::SetNextWindowPos(window_pos, ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowPos(window_pos, ImGuiCond_FirstUseEver, ImVec2(1.0f, 0.0f));
         ImGui::SetNextWindowSize(window_size, ImGuiCond_FirstUseEver);
         
         ImGui::Begin("Simulation Controls", &show_window, 
@@ -155,6 +156,11 @@ void hud_render(HUD* hud) {
         
         // Simulation controls
         if (ImGui::CollapsingHeader("Controls", ImGuiTreeNodeFlags_DefaultOpen)) {
+            bool showGrid = (hud->showGrid != 0);
+            if (ImGui::Checkbox("Show Grid", &showGrid)) {
+                hud->showGrid = showGrid ? 1 : 0;
+            }
+
             // Time control buttons
             ImGui::Text("Simulation Speed:");
             if (ImGui::Button("0.1x")) {

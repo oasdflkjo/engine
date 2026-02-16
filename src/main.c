@@ -1,10 +1,13 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <stdio.h>
+#include <time.h>
+#include <errno.h>
 #include "camera.h"
 #include "world.h"
 #include "hud.h"
 #include "particle_system.h"
+#include "recorder.h"
 
 Camera camera;
 World world;
@@ -13,11 +16,32 @@ float lastY = 0.0f;
 bool middleMousePressed = false;
 int windowWidth = 0;
 int windowHeight = 0;
+bool spaceHeld = false;
+float savedAttractionStrength = 1.0f;
+Recorder recorder;
+
+static void sleep_seconds(double seconds) {
+    if (seconds <= 0.0) {
+        return;
+    }
+
+    struct timespec req;
+    req.tv_sec = (time_t)seconds;
+    req.tv_nsec = (long)((seconds - (double)req.tv_sec) * 1000000000.0);
+    if (req.tv_nsec < 0) {
+        req.tv_nsec = 0;
+    }
+
+    while (nanosleep(&req, &req) == -1 && errno == EINTR) {
+    }
+}
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
     world.camera.width = width;
     world.camera.height = height;
+    windowWidth = width;
+    windowHeight = height;
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
@@ -44,18 +68,27 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    if (action != GLFW_PRESS)
-        return;
-
     switch (key) {
         case GLFW_KEY_H:
-            hud_toggle(&world.hud);
+        case GLFW_KEY_F1:
+            if (action == GLFW_PRESS) {
+                hud_toggle(&world.hud);
+            }
             break;
         case GLFW_KEY_ESCAPE:
-            glfwSetWindowShouldClose(window, true);
+            if (action == GLFW_PRESS) {
+                glfwSetWindowShouldClose(window, true);
+            }
             break;
         case GLFW_KEY_SPACE:
-            camera_reset(&world.camera);
+            if (action == GLFW_PRESS && !spaceHeld) {
+                savedAttractionStrength = particle_system_get_attraction_strength(world.particle_system);
+                particle_system_set_attraction_strength(world.particle_system, 0.0f);
+                spaceHeld = true;
+            } else if (action == GLFW_RELEASE && spaceHeld) {
+                particle_system_set_attraction_strength(world.particle_system, savedAttractionStrength);
+                spaceHeld = false;
+            }
             break;
     }
 }
@@ -98,7 +131,7 @@ int main() {
 
     // Setup window
     glfwMakeContextCurrent(window);
-    glfwSwapInterval(0);
+    glfwSwapInterval(1);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
@@ -125,15 +158,19 @@ int main() {
     }
 
     world_init(&world, window, ps);
+    int targetFps = recorder_target_fps_from_env(60);
+    recorder_init_from_env(&recorder, windowWidth, windowHeight, targetFps);
 
     // Add key callback
     glfwSetKeyCallback(window, key_callback);
 
     // Main loop
+    const double targetFrameTime = 1.0 / (double)targetFps;
     while (!glfwWindowShouldClose(window)) {
+        double frameStart = glfwGetTime();
 
         static float lastFrame = 0.0f;
-        double currentFrame = glfwGetTime();
+        double currentFrame = frameStart;
         float deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
@@ -141,13 +178,20 @@ int main() {
         camera_update(&world.camera, deltaTime);
 
         world_render(&world);
+        recorder_capture_frame(&recorder);
 
         glfwSwapBuffers(window);
         
         glfwPollEvents();
+
+        // Keep an explicit 60 FPS cap to improve frame pacing for capture stacks.
+        double frameEnd = glfwGetTime();
+        double remaining = targetFrameTime - (frameEnd - frameStart);
+        sleep_seconds(remaining);
     }
 
     // Cleanup
+    recorder_cleanup(&recorder);
     world_cleanup(&world);
     particle_system_destroy(ps);
     glfwDestroyWindow(window);
